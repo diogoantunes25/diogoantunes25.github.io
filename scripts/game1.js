@@ -139,8 +139,7 @@ setInterval(() => {
 
 const parseCollition = (obj) => {
     playing = false;
-    if (obj.parse()) removeLife();
-    removeLife(); // TODO: This only happens if people make the wrong choice
+    obj.parse();
     // TODO: remove event listener for jumping
     notColidedObstacles.forEach(obj => obj.remove());
 };
@@ -172,7 +171,9 @@ const removeLife = () => {
 };
 
 function obstacle () {
-    const i = Math.floor(Math.random() * 8);
+    // const i = Math.floor(Math.random() * 8);
+    // TODO: Add the random again
+    const i = 3;
     const newObstacle = document.createElement("div");
     const obstacleList = document.querySelector(".obstacles-container");
     notColidedObstacles.push(newObstacle);
@@ -195,8 +196,10 @@ function obstacle () {
 
 window.addEventListener("space", () => (jump(pegCharacter)));
 window.addEventListener("touchstart", () => {
-        startJump(pegCharacter);
-        setTimeout(() => stopJump(pegCharacter), 300);
+        if (playing) {
+            startJump(pegCharacter);
+            setTimeout(() => stopJump(pegCharacter), 300);
+        }
     }
 );
 
@@ -239,6 +242,7 @@ const showBooleanQuestion = (question, correctAnswer, wrongAnswer, correctFuncti
     wrongElement.addEventListener("touchstart", () => {
         correctElement.classList.add("correct");
         wrongElement.classList.add("wrong");
+        removeLife();
         setTimeout(() => {
             wrongFunction();
             textContainer.classList.add("on");
@@ -258,18 +262,72 @@ const showBooleanQuestion = (question, correctAnswer, wrongAnswer, correctFuncti
     booleanQuestion.style.display = "block";
 };
 
-const showMultipleChoice = (question, correctAnswer, wrongAnswers) => {
+const showMultipleChoice = (question, correctAnswer, wrongAnswers, correctFunction, wrongFunction) => {
     let correctI = Math.floor(Math.random() * 4);
     let aux = 0;
+
     multipleChoiceQuestion.children[0].textContent = question;
-    multipleChoiceQuestion.children[correctI + 1].textContent = correctAnswer;
+
+    const correctElement = multipleChoiceQuestion.children[correctI + 1] ;
+    correctElement.textContent = correctAnswer;
+
+    const wrongElements = [];
+
     for (let i = 1; i < 5; i++) {
         let child = multipleChoiceQuestion.children[i];
         if (multipleChoiceQuestion.children[correctI + 1] != child) {
             child.textContent = wrongAnswers[aux];
             aux++;
+            wrongElements.push(child);
         }
     }
+
+    correctElement.addEventListener("touchstart", () => {
+        correctElement.classList.add("correct");
+        wrongElements.forEach((wrongElement) => {
+            wrongElement.classList.add("wrong");
+        });
+        setTimeout(() => {
+            correctFunction();
+            textContainer.classList.add("on");
+            multipleChoiceQuestion.style.display = "none";
+            setTimeout(() => {
+                playing = true;
+                correctElement.classList.remove("correct");
+                wrongElements.forEach((wrongElement) => {
+                    wrongElement.classList.remove("wrong");
+                });
+                textContainer.classList.remove("on");
+                multipleChoiceQuestion.parentElement.style.display = "none";
+            }, 2000);
+        }, 1000);
+        // TODO: somehow remove the classes after showing the next text
+    });
+
+    wrongElements.forEach((wrongElement) => {
+        wrongElement.addEventListener("touchstart", () => {
+            correctElement.classList.add("correct");
+            wrongElements.forEach((wrongElement) => {
+                wrongElement.classList.add("wrong");
+            });
+            removeLife();
+            setTimeout(() => {
+                wrongFunction();
+                textContainer.classList.add("on");
+                multipleChoiceQuestion.style.display = "none";
+                setTimeout(() => {
+                    playing = true;
+                    correctElement.classList.remove("correct");
+                    wrongElements.forEach((wrongElement) => {
+                        wrongElement.classList.remove("wrong");
+                    });
+                    textContainer.classList.remove("on");
+                    multipleChoiceQuestion.parentElement.style.display = "none";
+                }, 2000);
+            }, 1000);
+            // TODO: Somehow remove the classes after showing the next text
+        });
+    });
 
     multipleChoiceQuestion.parentElement.style.display = "block";
     multipleChoiceQuestion.style.display = "block";

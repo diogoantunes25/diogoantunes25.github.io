@@ -15,7 +15,9 @@ const MIN_TIME = 500; // 0.5 seconds between obstacles (minimum)
 const TIME_DELTA = 3000; // 0.5 to 0.5 + 3 seconds between obstacles
 
 const pegCharacter = document.getElementById("peg-character");
+const progressBar = document.querySelector(".filled-bar");
 const obstacles = document.querySelectorAll(".obstacle");
+let time = 0;
 let notColidedObstacles = [];
 obstacles.forEach((obs) => {notColidedObstacles.push(obs)});
 
@@ -38,6 +40,12 @@ setInterval(() => {
     })}
 , 200);
 
+setInterval(() => { increaseProgressBar(); }, 1200);
+
+const increaseProgressBar = () => {
+    progressBar.style.width = `${time}%`;
+    time += 1;
+}
 
 const areColiding = (a, b) => {
     var aRect = a.getBoundingClientRect();

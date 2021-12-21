@@ -2,47 +2,96 @@
 const OBSTACLES = [
     {name: "blank", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", 
         parse : () => {
-            console.log(`Parsing ${this.name}`);
+            removeLife();
+            playing = true;
         }
     },
     {name: "carlao", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", 
         parse : () => {
-            console.log(`Parsing ${this.name}`);
+            showBooleanQuestion(
+                "Que sorte, encontraste o Carlão!",
+                "Ligar ao dinho",
+                "Oferecer um cigarro",
+                () => console.log("Correct"),
+                () => console.log("Wrong")
+            );
         }
     },
     {name: "stephanie", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", 
         parse : () => {
-            console.log(`Parsing ${this.name}`);
+            showBooleanQuestion(
+                "Olha quem está ali ao fundo. É a Stephanie!!",
+                "Fazer coisa um",
+                "Fazer coisa dois",
+                () => console.log("Correct"),
+                () => console.log("Wrong")
+            );
         }
     },
     {name: "casaLina", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", 
         parse : () => {
-            console.log(`Parsing ${this.name}`);
+            showMultipleChoice(
+                "Pergunta sobre linas 1",
+                "Resposta certa",
+                ["Resposta errada 1", "Resposta errada 2", "Resposta errada 3"],
+                () => console.log("Correct"),
+                () => console.log("Wrong")
+            )
         }
     },
     {name: "exame", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", 
         parse : () => {
-            console.log(`Parsing ${this.name}`);
+            showBooleanQuestion(
+                "Oh não estou a ver a época de exames ao longe!",
+                "Ir para a nova fingir que estudo",
+                "Ir para santos com o xu",
+                () => console.log("Correct"),
+                () => console.log("Wrong")
+            );
         }
     },
     {name: "metro", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", 
         parse : () => {
-            console.log(`Parsing ${this.name}`);
+            showBooleanQuestion(
+                "Está na hora de ir embora",
+                "Vou chamar um uber, porque não me quero perder",
+                "Olha a praça do Saldanha ali ao fundo, vou apanhar o metro!",
+                () => console.log("Correct"),
+                () => console.log("Wrong")
+            );
         },
     },
     {name: "shot", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", 
         parse : () => {
-            console.log(`Parsing ${this.name}`);
+            showBooleanQuestion(
+                "O xu oferece-te um shot de absinto canabis",
+                "Não sei se vou ainda",
+                "Sim, claro que quero",
+                () => console.log("Correct"),
+                () => console.log("Wrong")
+            );
         },
     },
     {name: "boti", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", 
         parse : () => {
-            console.log(`Parsing ${this.name}`);
+            showBooleanQuestion(
+                "Pergunta sobre a boti 1",
+                "Resposta certa",
+                "Resposta errada",
+                () => console.log("Correct"),
+                () => console.log("Wrong")
+            );
         },
     },
     {name: "montanha-russa", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", 
         parse : () => {
-            console.log(`Parsing ${this.name}`);
+            showBooleanQuestion(
+                "Que divertido, uma montanha-russa!",
+                "Tenho de fumar um nite",
+                "Bora, adoro isto!",
+                () => console.log("Correct"),
+                () => console.log("Wrong")
+            )
         },
     }
 ];
@@ -153,17 +202,30 @@ const newTimeout = () => {
 
 newTimeout();
 
-const showBooleanQuestion = (question, correctAnswer, wrongAnswer) => {
+const showBooleanQuestion = (question, correctAnswer, wrongAnswer, correctFunction, wrongFunction) => {
     let correctI = Math.floor(Math.random() * 2);
+
     booleanQuestion.children[0].textContent = question;
-    booleanQuestion.children[correctI + 1].textContent = correctAnswer;
-    for (let i = 1; i < 5; i++) {
-        let child = booleanQuestion.children[i];
-        if (booleanQuestion.children[correctI + 1 != child]) {
-            child.textContent = wrongAnswers[aux];
-            aux++;
-        }
-    }
+
+    const correctElement = booleanQuestion.children[correctI + 1];
+    correctElement.textContent = correctAnswer;
+    correctElement.addEventListener("touchstart", () => {
+        correctElement.classList.add("correct");
+        wrongElement.classList.add("wrong");
+        correctFunction();
+        playing = true;
+        // TODO: somehow remove the classes after showing the next text
+    });
+
+    const wrongElement = booleanQuestion.children[2 - correctI]
+    wrongElement.textContent = wrongAnswer;
+    wrongElement.addEventListener("touchstart", () => {
+        correctElement.classList.add("correct");
+        wrongElement.classList.add("wrong");
+        wrongFunction();
+        playing = true;
+        // TODO: Somehow remove the classes after showing the next text
+    });
 
     booleanQuestion.parentElement.style.display = "block";
     booleanQuestion.style.display = "block";
@@ -185,8 +247,3 @@ const showMultipleChoice = (question, correctAnswer, wrongAnswers) => {
     multipleChoiceQuestion.parentElement.style.display = "block";
     multipleChoiceQuestion.style.display = "block";
 };
-
-
-setTimeout(() => {
-    showBooleanQuestion("a", "b", "c");
-}, 1000);

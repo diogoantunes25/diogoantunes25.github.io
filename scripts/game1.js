@@ -218,9 +218,8 @@ const showBooleanQuestion = (question, correctAnswer, wrongAnswer, correctFuncti
 
     booleanQuestion.children[0].textContent = question;
 
-    const correctElement = booleanQuestion.children[correctI + 1];
-    correctElement.textContent = correctAnswer;
-    correctElement.addEventListener("touchstart", () => {
+    const auxFunction1 = () => {
+        console.log("Here");
         correctElement.classList.add("correct");
         wrongElement.classList.add("wrong");
         setTimeout(() => {
@@ -233,14 +232,15 @@ const showBooleanQuestion = (question, correctAnswer, wrongAnswer, correctFuncti
                 wrongElement.classList.remove("wrong");
                 textContainer.classList.remove("on");
                 booleanQuestion.parentElement.style.display = "none";
+                // TODO: have to remove the event listener
             }, 2000);
         }, 1000);
         // TODO: somehow remove the classes after showing the next text
-    });
+        correctElement.removeEventListener("touchstart", auxFunction1);
+        wrongElement.removeEventListener("touchstart", auxFunction2);
+   }
 
-    const wrongElement = booleanQuestion.children[2 - correctI]
-    wrongElement.textContent = wrongAnswer;
-    wrongElement.addEventListener("touchstart", () => {
+    const auxFunction2 = () => {
         correctElement.classList.add("correct");
         wrongElement.classList.add("wrong");
         removeLife();
@@ -254,10 +254,20 @@ const showBooleanQuestion = (question, correctAnswer, wrongAnswer, correctFuncti
                 wrongElement.classList.remove("wrong");
                 textContainer.classList.remove("on");
                 booleanQuestion.parentElement.style.display = "none";
+                // TODO: have to remove the event listener
             }, 2000);
         }, 1000);
-        // TODO: Somehow remove the classes after showing the next text
-    });
+        correctElement.removeEventListener("touchstart", auxFunction1);
+        wrongElement.removeEventListener("touchstart", auxFunction2);
+    };
+
+    const correctElement = booleanQuestion.children[correctI + 1];
+    correctElement.textContent = correctAnswer;
+    correctElement.addEventListener("touchstart", auxFunction1);
+
+    const wrongElement = booleanQuestion.children[2 - correctI]
+    wrongElement.textContent = wrongAnswer;
+    wrongElement.addEventListener("touchstart", auxFunction2);
 
     booleanQuestion.parentElement.style.display = "block";
     booleanQuestion.style.display = "block";
@@ -283,7 +293,7 @@ const showMultipleChoice = (question, correctAnswer, wrongAnswers, correctFuncti
         }
     }
 
-    correctElement.addEventListener("touchstart", () => {
+    const auxFunction1 = () => {
         correctElement.classList.add("correct");
         wrongElements.forEach((wrongElement) => {
             wrongElement.classList.add("wrong");
@@ -300,34 +310,41 @@ const showMultipleChoice = (question, correctAnswer, wrongAnswers, correctFuncti
                 });
                 textContainer.classList.remove("on");
                 multipleChoiceQuestion.parentElement.style.display = "none";
+                correctElement.removeEventListener("touchstart", auxFunction1);
             }, 2000);
         }, 1000);
-        // TODO: somehow remove the classes after showing the next text
-    });
+    };
+
+    const auxFunction2 = () => {
+        correctElement.classList.add("correct");
+        wrongElements.forEach((wrongElement) => {
+            wrongElement.classList.add("wrong");
+        });
+        removeLife();
+        setTimeout(() => {
+            wrongFunction();
+            textContainer.classList.add("on");
+            multipleChoiceQuestion.style.display = "none";
+            setTimeout(() => {
+                playing = true;
+                correctElement.classList.remove("correct");
+                wrongElements.forEach((wrongElement) => {
+                    wrongElement.classList.remove("wrong");
+                });
+                textContainer.classList.remove("on");
+                multipleChoiceQuestion.parentElement.style.display = "none";
+                // TODO: have to remove the event listener
+            }, 2000);
+        }, 1000);
+        wrongElements.forEach((el) => {
+            el.removeEventListener("touchstart", auxFunction2);
+        });
+    };
+
+    correctElement.addEventListener("touchstart", auxFunction1);
 
     wrongElements.forEach((wrongElement) => {
-        wrongElement.addEventListener("touchstart", () => {
-            correctElement.classList.add("correct");
-            wrongElements.forEach((wrongElement) => {
-                wrongElement.classList.add("wrong");
-            });
-            removeLife();
-            setTimeout(() => {
-                wrongFunction();
-                textContainer.classList.add("on");
-                multipleChoiceQuestion.style.display = "none";
-                setTimeout(() => {
-                    playing = true;
-                    correctElement.classList.remove("correct");
-                    wrongElements.forEach((wrongElement) => {
-                        wrongElement.classList.remove("wrong");
-                    });
-                    textContainer.classList.remove("on");
-                    multipleChoiceQuestion.parentElement.style.display = "none";
-                }, 2000);
-            }, 1000);
-            // TODO: Somehow remove the classes after showing the next text
-        });
+        wrongElement.addEventListener("touchstart", auxFunction2);
     });
 
     multipleChoiceQuestion.parentElement.style.display = "block";

@@ -168,12 +168,13 @@ const areColiding = (a, b) => {
 const removeLife = () => {
     lifes--;
     lifeContainer.children[lifes].style.opacity = 0;
+    if (lifes == 0) { endGame(); };
 };
 
+const endGame = () => {};
+
 function obstacle () {
-    // const i = Math.floor(Math.random() * 8);
-    // TODO: Add the random again
-    const i = 3;
+    const i = Math.floor(Math.random() * 8);
     const newObstacle = document.createElement("div");
     const obstacleList = document.querySelector(".obstacles-container");
     notColidedObstacles.push(newObstacle);

@@ -130,6 +130,61 @@ body.index .container {
 }
 
 
+.questions-container {
+    position: fixed;
+    width: 95vw;
+    height: 48vh;
+    background-color: white;
+    top: 15vh;
+    left: 2.5vw;
+}
+
+.question-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    font-size: 50px;
+    display: flex;
+    flex-direction: column;
+}
+
+.question-container > span {
+    text-align: center;
+}
+
+.question {
+    margin: 6vh 0 5vh 0;
+    align-items: center;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+.answer {
+    height: 5vh;
+    margin: 1vh 1vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3vh;
+}
+
+.answer.correct {
+    background-color: lightgreen;
+}
+
+.answer.wrong {
+    background-color: lightcoral;
+}
+
+.questions-container{
+    display: none;
+}
+
+.question-container {
+    display: none;
+}
 
 /* GAME 2 ---------------------------------------------- */
 /* ----------------------------------------------------- */

@@ -101,7 +101,7 @@ const OBSTACLES = [
 ];
 
 const MIN_TIME = 500; // 0.5 seconds between obstacles (minimum)
-const TIME_DELTA = 3000; // 0.5 to 0.5 + 3 seconds between obstacles
+const TIME_DELTA = 1500; // 0.5 to 0.5 + 1.5 seconds between obstacles
 
 const pegCharacter = document.getElementById("peg-character");
 const progressBar = document.querySelector(".filled-bar");
@@ -199,7 +199,7 @@ window.addEventListener("space", () => (jump(pegCharacter)));
 window.addEventListener("touchstart", () => {
         if (playing) {
             startJump(pegCharacter);
-            setTimeout(() => stopJump(pegCharacter), 300);
+            setTimeout(() => stopJump(pegCharacter), 500);
         }
     }
 );

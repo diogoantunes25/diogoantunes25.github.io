@@ -107,26 +107,27 @@ body.index .container {
     bottom: 20vh;
     left: 10vw;
     position: fixed;
-    transition: bottom .3s;
+    transition: bottom .5s;
 }
 
 #peg-character:hover,
 #peg-character.high {
-    bottom:35vh;
+    bottom:45vh;
 }
 
 .obstacle {
-    width: 120px;
+    width: 80px;
     height: 120px;
     background-color: pink;
     position: fixed;
     bottom: 20vh;
     right: -50vw;
-    transition: transform 30s;
+    transition: transform 5s;
+    transition-timing-function: linear;
 }
 
 .obstacle.moved {
-    transform: translateX(-1000vw);
+    transform: translateX(-200vw);
 }
 
 

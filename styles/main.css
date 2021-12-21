@@ -47,8 +47,6 @@ body.index .container {
     padding: 25px 40px;
 }
 
-
-
 .progress-bar-container {
     width: 95vw;
     margin: auto;
@@ -123,29 +121,13 @@ body.index .container {
     background-color: pink;
     position: fixed;
     bottom: 20vh;
+    right: -50vw;
     transition: transform 30s;
 }
 
 .obstacle.moved {
     transform: translateX(-1000vw);
 }
-
-#obstacle-1 {
-    right: -50vw;
-}
-
-#obstacle-2 {
-    right: -300vw;
-}
-
-#obstacle-3 {
-    right: -200vw;
-}
-
-#obstacle-4 {
-    right: 0vw;
-}
-
 
 
 

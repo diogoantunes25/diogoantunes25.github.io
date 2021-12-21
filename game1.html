@@ -5,9 +5,32 @@
         <link rel="stylesheet" href="styles/main.css">
 
         <!-- Scripts -->
-        <script src="scripts/game1.js"></script> 
+        <script src="scripts/game1.js" defer></script> 
     </head>
-    <body>
-        <h1>Peg, o barman</h1>        
+    <body class="game1">
+        <div class="game-container">
+            <div class="life-container">
+                <span class="life">❤️</span> 
+                <span class="life">❤️</span> 
+                <span class="life">❤️</span> 
+                <span class="life">❤️</span> 
+                <span class="life">❤️</span> 
+            </div>
+            <div class="score-container">Score:<span class="score">100</span></div>
+            <div class="progress-bar-container">
+                <div class="starting-point"></div>
+                <div class="progress-bar"><div class="filled-bar"></div></div>
+                <div class="ending-point"></div>
+            </div>
+            <div id="peg-character"></div>
+            <div class="obstacles-container">
+                <div id="obstacle-1" class="obstacle"></div> 
+                <div id="obstacle-2" class="obstacle"></div> 
+                <div id="obstacle-3" class="obstacle"></div> 
+                <div id="obstacle-4" class="obstacle"></div> 
+            </div>
+            <div class="ground">
+            </div>
+        </div>
     </body>
 </html>

@@ -1,14 +1,14 @@
 // TODO: Put correct info
 const OBSTACLES = [
-    {name: "blank", question: "O que fazes?", correctAnswer: "", wrongAnswer: ""},
-    {name: "carlao", question: "O que fazes?", correctAnswer: "", wrongAnswer: ""},
-    {name: "stephanie", question: "O que fazes?", correctAnswer: "", wrongAnswer: ""},
-    {name: "casaLina", question: "O que fazes?", correctAnswer: "", wrongAnswer: ""},
-    {name: "exame", question: "O que fazes?", correctAnswer: "", wrongAnswer: ""},
-    {name: "metro", question: "O que fazes?", correctAnswer: "", wrongAnswer: ""},
-    {name: "shot", question: "O que fazes?", correctAnswer: "", wrongAnswer: ""},
-    {name: "boti", question: "O que fazes?", correctAnswer: "", wrongAnswer: ""},
-    {name: "montanha-russa", question: "O que fazes?", correctAnswer: "", wrongAnswer: ""},
+    {name: "blank", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", parse : () => (console.log(`Parsing ${this.name}`))},
+    {name: "carlao", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", parse : () => (console.log(`Parsing ${this.name}`))},
+    {name: "stephanie", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", parse : () => (console.log(`Parsing ${this.name}`))},
+    {name: "casaLina", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", parse : () => (console.log(`Parsing ${this.name}`))},
+    {name: "exame", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", parse : () => (console.log(`Parsing ${this.name}`))},
+    {name: "metro", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", parse : () => (console.log(`Parsing ${this.name}`))},
+    {name: "shot", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", parse : () => (console.log(`Parsing ${this.name}`))},
+    {name: "boti", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", parse : () => (console.log(`Parsing ${this.name}`))},
+    {name: "montanha-russa", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", parse : () => (console.log(`Parsing ${this.name}`))},
 ];
 
 const MIN_TIME = 500; // 0.5 seconds between obstacles (minimum)
@@ -17,7 +17,10 @@ const TIME_DELTA = 3000; // 0.5 to 0.5 + 3 seconds between obstacles
 const pegCharacter = document.getElementById("peg-character");
 const progressBar = document.querySelector(".filled-bar");
 const obstacles = document.querySelectorAll(".obstacle");
+const lifeContainer = document.querySelector(".life-container");
 let time = 0;
+let lifes = 5;
+let playing = true;
 let notColidedObstacles = [];
 obstacles.forEach((obs) => {notColidedObstacles.push(obs)});
 
@@ -35,16 +38,25 @@ setInterval(() => {
     notColidedObstacles.forEach( (obstacle) => {
         if (areColiding(pegCharacter, obstacle)) {
             notColidedObstacles = notColidedObstacles.filter((obs) => obs != obstacle);
-            console.log("collision");
+            parseCollition(obstacle.obstacle);
         }
     })}
 , 200);
 
+const parseCollition = (obj) => {
+    playing = false;
+    if (obj.parse()) removeLife();
+    removeLife(); // TODO: This only happens if people make the wrong choice
+    notColidedObstacles.forEach(obj => obj.remove());
+};
+
 setInterval(() => { increaseProgressBar(); }, 1200);
 
 const increaseProgressBar = () => {
-    progressBar.style.width = `${time}%`;
-    time += 1;
+    if (playing) {
+        progressBar.style.width = `${time}%`;
+        time += 1;
+    }
 }
 
 const areColiding = (a, b) => {
@@ -60,6 +72,8 @@ const areColiding = (a, b) => {
 }
 
 const removeLife = () => {
+    lifes--;
+    lifeContainer.children[lifes].style.opacity = 0;
 };
 
 function obstacle () {
@@ -70,6 +84,7 @@ function obstacle () {
     obstacleList.appendChild(newObstacle);
     newObstacle.classList.add(`obstacle-${i}`);
     newObstacle.classList.add(`obstacle`);
+    newObstacle.obstacle = OBSTACLES[i];
     setTimeout(() => {
         newObstacle.classList.add("moved");
     }, 2);
@@ -92,7 +107,7 @@ window.addEventListener("touchstart", () => {
 
 const newTimeout = () => {
     setTimeout(() => {
-        obstacle();
+        if (playing) obstacle();
         newTimeout();
     }, MIN_TIME + Math.floor(Math.random() * TIME_DELTA));
 }

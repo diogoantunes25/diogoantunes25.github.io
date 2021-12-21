@@ -12,8 +12,12 @@ const OBSTACLES = [
                 "Que sorte, encontraste o Carlão!",
                 "Ligar ao dinho",
                 "Oferecer um cigarro",
-                () => console.log("Correct"),
-                () => console.log("Wrong")
+                () => {
+                    setText("Sabes como ele gosta de nites...");
+                },
+                () => {
+                    setText("Mais uma noite com o dinheiro a faturar");
+                }
             );
         }
     },
@@ -103,6 +107,7 @@ const pegCharacter = document.getElementById("peg-character");
 const progressBar = document.querySelector(".filled-bar");
 const obstacles = document.querySelectorAll(".obstacle");
 const lifeContainer = document.querySelector(".life-container");
+const textContainer = document.querySelector(".text-container");
 const booleanQuestion = document.querySelector(".boolean-question");
 const multipleChoiceQuestion = document.querySelector(".multiple-choice-question");
 let time = 0;
@@ -120,6 +125,8 @@ setTimeout(() => {
 
 const startJump = (peg) => { peg.classList.add("high"); }
 const stopJump = (peg) => { peg.classList.remove("high"); }
+
+const setText = (text) => { textContainer.textContent = text; };
 
 setInterval(() => {
     notColidedObstacles.forEach( (obstacle) => {
@@ -212,8 +219,18 @@ const showBooleanQuestion = (question, correctAnswer, wrongAnswer, correctFuncti
     correctElement.addEventListener("touchstart", () => {
         correctElement.classList.add("correct");
         wrongElement.classList.add("wrong");
-        correctFunction();
-        playing = true;
+        setTimeout(() => {
+            correctFunction();
+            textContainer.classList.add("on");
+            booleanQuestion.style.display = "none";
+            setTimeout(() => {
+                playing = true;
+                correctElement.classList.remove("correct");
+                wrongElement.classList.remove("wrong");
+                textContainer.classList.remove("on");
+                booleanQuestion.parentElement.style.display = "none";
+            }, 2000);
+        }, 1000);
         // TODO: somehow remove the classes after showing the next text
     });
 
@@ -222,8 +239,18 @@ const showBooleanQuestion = (question, correctAnswer, wrongAnswer, correctFuncti
     wrongElement.addEventListener("touchstart", () => {
         correctElement.classList.add("correct");
         wrongElement.classList.add("wrong");
-        wrongFunction();
-        playing = true;
+        setTimeout(() => {
+            wrongFunction();
+            textContainer.classList.add("on");
+            booleanQuestion.style.display = "none";
+            setTimeout(() => {
+                playing = true;
+                correctElement.classList.remove("correct");
+                wrongElement.classList.remove("wrong");
+                textContainer.classList.remove("on");
+                booleanQuestion.parentElement.style.display = "none";
+            }, 2000);
+        }, 1000);
         // TODO: Somehow remove the classes after showing the next text
     });
 

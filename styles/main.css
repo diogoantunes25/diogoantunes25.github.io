@@ -137,6 +137,7 @@ body.index .container {
     background-color: white;
     top: 15vh;
     left: 2.5vw;
+    font-size: 50px;
 }
 
 .question-container {
@@ -144,9 +145,9 @@ body.index .container {
     top: 0;
     left: 0;
     width: 100%;
-    font-size: 50px;
     display: flex;
     flex-direction: column;
+    z-index: 5;
 }
 
 .question-container > span {
@@ -178,13 +179,23 @@ body.index .container {
     background-color: lightcoral;
 }
 
-.questions-container{
-    display: none;
-}
-
+.questions-container, 
 .question-container {
     display: none;
 }
+
+.text-container {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    padding: 5vh 5vw;
+    opacity: 0;
+}
+
+.text-container.on {
+    opacity: 1;
+}
+
 
 /* GAME 2 ---------------------------------------------- */
 /* ----------------------------------------------------- */

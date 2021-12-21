@@ -174,7 +174,8 @@ const removeLife = () => {
 const endGame = () => {};
 
 function obstacle () {
-    const i = Math.floor(Math.random() * 8);
+    // const i = Math.floor(Math.random() * 8);
+    const i = 3;
     const newObstacle = document.createElement("div");
     const obstacleList = document.querySelector(".obstacles-container");
     notColidedObstacles.push(newObstacle);

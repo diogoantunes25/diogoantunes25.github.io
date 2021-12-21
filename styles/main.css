@@ -30,8 +30,8 @@ body.index .container {
 /* ----------------------------------------------------- */
 
 .game-container {
-    background-color: aqua;
     height: 100vh;
+    background-image: url("../assets/images/3643c4cd6a43f.jpg");
 }
 
 .life-container {
@@ -57,31 +57,37 @@ body.index .container {
 
 .progress-bar-container .starting-point {
     position: absolute;
-    background-color: deeppink;
-    width: 120px;
-    height: 120px;
+    background-image: url("../assets/images/nova_building.png");
+    background-size: cover;
+    width: 200px;
+    height: 200px;
     left: 0;
-    top: -35px;
+    top: -55px;
+    box-shadow: 0 0 15px black;
 }
 
 .progress-bar-container .ending-point {
     position: absolute;
-    background-color: deeppink;
-    width: 120px;
-    height: 120px;
+    background-image: url("../assets/images/urban.jpeg");
+    background-size: cover;
+    background-position: center;
+    width: 200px;
+    height: 200px;
     right: 0;
-    top: -35px;
+    top: -55px;
+    box-shadow: 0 0 15px black;
 }
 
 
 .progress-bar {
-    width: 60vw;
+    width: 45vw;
     background-color: blueviolet;
     height: 50px;
     margin: auto;
     border-radius: 25px;
     position: relative;
     overflow: hidden;
+    top: 30px;
 }
 
 .filled-bar {
@@ -92,38 +98,70 @@ body.index .container {
     background-color: brown;
 }
 
-.ground {
-    width: 100%;
-    height: 20vh;
-    background-color: yellow;
-    position: fixed;
-    bottom:0;
-}
 
 #peg-character {
-    height: 15vh;
+    height: 24vh;
     width: 100px;
-    background-color: orange;
-    bottom: 20vh;
+    bottom: 0vh;
     left: 10vw;
     position: fixed;
     transition: bottom .5s;
+    z-index: 10;
 }
 
-#peg-character:hover,
+#peg-character img {
+    height: 100%;
+}
+
 #peg-character.high {
-    bottom:45vh;
+    bottom:18vh;
 }
 
 .obstacle {
     width: 80px;
     height: 120px;
-    background-color: pink;
     position: fixed;
-    bottom: 20vh;
+    bottom: 0vh;
     right: -50vw;
     transition: transform 5s;
     transition-timing-function: linear;
+}
+
+.obstacle.obstacle-0 {
+    height: 200px;
+    background-color: brown;
+}
+
+.obstacle.obstacle-1 {
+    height: 250px;
+    background-image: url("../assets/images/carlao.png");
+    background-size: cover;
+}
+
+.obstacle.obstacle-2 {
+    height: 115px;
+    width: 170px;
+    background-image: url("../assets/images/egypt.png");
+    background-size: cover;
+}
+
+.obstacle.obstacle-3 {
+    height: 200px;
+    width: 150px;
+    background-image: url("../assets/images/rose.png");
+    background-size: cover;
+}
+
+.obstacle.obstacle-4 {
+    height: 250px;
+    background-image: url("../assets/images/carlao.png");
+    background-size: cover;
+}
+
+.obstacle.obstacle-5 {
+    height: 250px;
+    background-image: url("../assets/images/carlao.png");
+    background-size: cover;
 }
 
 .obstacle.moved {
@@ -136,7 +174,7 @@ body.index .container {
     width: 95vw;
     height: 48vh;
     background-color: white;
-    top: 15vh;
+    top: 18vh;
     left: 2.5vw;
     font-size: 50px;
 }

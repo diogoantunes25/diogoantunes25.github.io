@@ -252,9 +252,11 @@ setInterval(() => {
 }, 1200);
 
 const increaseScore = (n) => {
-    const scoreSpan = document.querySelector(".score-container .score");
-    score += n;
-    scoreSpan.textContent = score;
+    if (playing) {
+        const scoreSpan = document.querySelector(".score-container .score");
+        score += n;
+        scoreSpan.textContent = score;
+    }
 }
 
 const increaseProgressBar = () => {
@@ -287,8 +289,9 @@ const endGame = () => {
 };
 
 function obstacle () {
-    let i = Math.floor(Math.random() * 30);
-    if (i > 8) i = 3;
+    // let i = Math.floor(Math.random() * 30);
+    // if (i > 8) i = 3;
+    let i = 3;
     const newObstacle = document.createElement("div");
     const obstacleList = document.querySelector(".obstacles-container");
     notColidedObstacles.push(newObstacle);

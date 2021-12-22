@@ -213,6 +213,7 @@ const booleanQuestion = document.querySelector(".boolean-question");
 const multipleChoiceQuestion = document.querySelector(".multiple-choice-question");
 let time = 0;
 let lifes = 5;
+let score = 0;
 let playing = true;
 let notColidedObstacles = [];
 obstacles.forEach((obs) => {notColidedObstacles.push(obs)});
@@ -245,7 +246,16 @@ const parseCollition = (obj) => {
     notColidedObstacles.forEach(obj => obj.remove());
 };
 
-setInterval(() => { increaseProgressBar(); }, 1200);
+setInterval(() => {
+    increaseProgressBar();
+    increaseScore(1);
+}, 1200);
+
+const increaseScore = (n) => {
+    const scoreSpan = document.querySelector(".score-container .score");
+    score += n;
+    scoreSpan.textContent = score;
+}
 
 const increaseProgressBar = () => {
     if (playing) {
@@ -272,10 +282,12 @@ const removeLife = () => {
     if (lifes == 0) { endGame(); };
 };
 
-const endGame = () => {};
+const endGame = () => {
+    playing = false;
+};
 
 function obstacle () {
-    let i = Math.floor(Math.random() * 80);
+    let i = Math.floor(Math.random() * 30);
     if (i > 8) i = 3;
     const newObstacle = document.createElement("div");
     const obstacleList = document.querySelector(".obstacles-container");
@@ -376,19 +388,19 @@ const showBooleanQuestion = (question, correctAnswer, wrongAnswer, correctFuncti
 };
 
 const showMultipleChoice = (question, correctAnswer, wrongAnswers, correctFunction, wrongFunction) => {
-    let correctI = Math.floor(Math.random() * 4);
+    let correctI = Math.floor(Math.random() * 4) + 1;
     let aux = 0;
 
     multipleChoiceQuestion.children[0].textContent = question;
 
-    const correctElement = multipleChoiceQuestion.children[correctI + 1] ;
+    const correctElement = multipleChoiceQuestion.children[correctI] ;
     correctElement.textContent = correctAnswer;
 
     const wrongElements = [];
 
     for (let i = 1; i < 5; i++) {
         let child = multipleChoiceQuestion.children[i];
-        if (multipleChoiceQuestion.children[correctI + 1] != child) {
+        if (multipleChoiceQuestion.children[correctI] != child) {
             child.textContent = wrongAnswers[aux];
             aux++;
             wrongElements.push(child);
@@ -413,6 +425,9 @@ const showMultipleChoice = (question, correctAnswer, wrongAnswers, correctFuncti
                 textContainer.classList.remove("on");
                 multipleChoiceQuestion.parentElement.style.display = "none";
                 correctElement.removeEventListener("touchstart", auxFunction1);
+                wrongElements.forEach((el) => {
+                    el.removeEventListener("touchstart", auxFunction2);
+                });
             }, 2000);
         }, 1000);
     };
@@ -438,6 +453,7 @@ const showMultipleChoice = (question, correctAnswer, wrongAnswers, correctFuncti
                 // TODO: have to remove the event listener
             }, 2000);
         }, 1000);
+        correctElement.removeEventListener("touchstart", auxFunction1);
         wrongElements.forEach((el) => {
             el.removeEventListener("touchstart", auxFunction2);
         });

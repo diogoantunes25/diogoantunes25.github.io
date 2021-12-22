@@ -1,4 +1,103 @@
 // TODO: Put correct info
+
+const LINA_QUESTIONS = [
+    {
+        question: "Quando foi criado o lina?",
+        correctAnswer: "Junho de 2017",
+        wrongAnswers: ["Julho de 2017", "Junho de 2018", "Julho de 2018"],
+    },
+    {
+        question: "Quantos membros existiam no dia de criação do lina.",
+        correctAnswer: "7",
+        wrongAnswers: ["5", "6", "8"],
+    },
+    {
+        question: "Qual o significado da rosa?",
+        correctAnswer: "Senhoria do apartamento do Nuno",
+        wrongAnswers: ["Empregrada do dinho", "Flor favorita dos membros", "Nome da prima de um membro"],
+    },
+    {
+        question: "Quando foi crido lina e binas?",
+        correctAnswer: "Setembro de 2019",
+        wrongAnswers: ["Outubro de 2019", "Agosto de 2018", "Outubro de 2018"],
+    },
+    {
+        question: "Que linas se conhecem há mais tempo?",
+        correctAnswer: "Peg, xu, mario, nuno",
+        wrongAnswers: ["Peg, xu, be, nuno", "Mario, peg, be, nuno", "Renata, dinho, mario, peg"],
+    },
+    {
+        question: "Como surgiu o nome xu?",
+        correctAnswer: "Liga-te elvas",
+        wrongAnswers: ["Campo de ferias MTA", "Projeto de ferias 2º ciclo", "Verao do 9º ano"],
+    },
+    {
+        question: "Qual a bebida favorita do peg?",
+        correctAnswer: "Leite morno",
+        wrongAnswers: ["Absinto", "Vodka", "Espumante"],
+    },
+    {
+        question: "Quantos jantares de Natal já se celebraram no grupo?",
+        correctAnswer: "2",
+        wrongAnswers: ["1", "3", "4"],
+    },
+    {
+        question: "Qual o nome da mãe do peg?",
+        correctAnswer: "Albertina",
+        wrongAnswers: ["Concertina", "Jorgina", "Valentina"],
+    },
+    {
+        question: "Quem foi o/a primeiro/a lina/femea com carta?",
+        correctAnswer: "Be",
+        wrongAnswers: ["Peg", "H", "Boti"],
+    },
+    {
+        question: "Para que vila se deslocaram os lina no verão de 2019",
+        correctAnswer: "Seixas",
+        wrongAnswers: ["Moledo", "Esposende", "Vila Praia de Ancora"],
+    },
+    {
+        question: "Que cidade europeia iam os Lina visitar este verão?",
+        correctAnswer: "Malta",
+        wrongAnswers: ["Marbella", "Malaga", "Paris"],
+    },
+    {
+        question: "Porque foi criado o grupo?",
+        correctAnswer: "Organizar aniversario Iris",
+        wrongAnswers: ["Organizar festa surpresa do Peg",
+                        "Combinar Noite Branca",
+                        "Trabalho de grupo"],
+    },
+    {
+        question: "O grupo foi criado para organizar uma dormida. Qual a organização nessa dormida?",
+        correctAnswer: "Casa 1 - xu, did, H; Casa 2 - Be, mar, nuno, peg",
+        wrongAnswers: ["Casa 1 - nuno, mar, H; Casa 2 - xu, did, nuno, peg",
+                        "Casa 1 - xu, did, mar; Casa 2 - Be, H, nuno, peg",
+                        "Casa 1 - nuno, did, peg, dinho; Casa 2 - xu, mar, H"
+        ]
+    },
+    {
+        question: "Qual a frase que surge em latim no logo dos lina?",
+        correctAnswer: "Semper fidelis",
+        wrongAnswers: ["Veni vidi vici", "Carpem diem", "Cogito, ergo sum"],
+    },
+    {
+        question: "Quantos membros do grupo têm animais de estimação?",
+        correctAnswer: "7",
+        wrongAnswers: ["6", "8", "10"],
+    },
+    {
+        question: "Quantos membros tinha o lina e femeas à data da sua criação?",
+        correctAnswer: "13",
+        wrongAnswers: ["12", "11", "10"],
+    },
+    {
+        question: "Qual a melhor francesinha de Braga?",
+        correctAnswer: "Taberna Belga",
+        wrongAnswers: ["Taberna Londrina", "Lado B", "Taberna Holandesa"],
+    },
+];
+
 const OBSTACLES = [
     {name: "blank", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", 
         parse : () => {
@@ -34,12 +133,14 @@ const OBSTACLES = [
     },
     {name: "casaLina", question: "O que fazes?", correctAnswer: "", wrongAnswer: "", 
         parse : () => {
+            let i = Math.floor(Math.random() * LINA_QUESTIONS.length);
+            let question = LINA_QUESTIONS[i];
             showMultipleChoice(
-                "Pergunta sobre linas 1",
-                "Resposta certa",
-                ["Resposta errada 1", "Resposta errada 2", "Resposta errada 3"],
-                () => console.log("Correct"),
-                () => console.log("Wrong")
+                question.question,
+                question.correctAnswer,
+                question.wrongAnswers,
+                () => setText(""),
+                () => setText("")
             )
         }
     },
@@ -174,8 +275,8 @@ const removeLife = () => {
 const endGame = () => {};
 
 function obstacle () {
-    // const i = Math.floor(Math.random() * 8);
-    const i = 3;
+    let i = Math.floor(Math.random() * 80);
+    if (i > 8) i = 3;
     const newObstacle = document.createElement("div");
     const obstacleList = document.querySelector(".obstacles-container");
     notColidedObstacles.push(newObstacle);

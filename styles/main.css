@@ -153,14 +153,36 @@ body.index .container {
 }
 
 .obstacle.obstacle-4 {
-    height: 250px;
-    background-image: url("../assets/images/carlao.png");
+    height: 150px;
+    width: 150px;
+    background-image: url("../assets/images/exam.png");
     background-size: cover;
 }
 
 .obstacle.obstacle-5 {
+    height: 120px;
+    width: 180px;
+    background-image: url("../assets/images/metro.png");
+    background-size: cover;
+}
+
+.obstacle.obstacle-6 {
     height: 250px;
-    background-image: url("../assets/images/carlao.png");
+    width: 150px;
+    background-image: url("../assets/images/shot.png");
+    background-size: cover;
+}
+
+.obstacle.obstacle-7 {
+    height: 100px;
+    background-image: url("../assets/images/shot.png");
+    background-size: cover;
+}
+
+.obstacle.obstacle-8 {
+    height: 150px;
+    width: 200px;
+    background-image: url("../assets/images/rolercoaster.png");
     background-size: cover;
 }
 

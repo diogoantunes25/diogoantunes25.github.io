@@ -15,6 +15,19 @@ body.index .container {
     justify-content: space-around;
 }
 
+body.index h1, body.index h2 {
+    color: white;
+    text-align: center;
+}
+
+h1 {
+    font-size: 5vh;
+}
+
+h2 {
+    font-size: 3vh;
+    margin-top: 3vh;
+}
 .btn-game {
     width: 90vw;
     text-align: center;
@@ -257,7 +270,24 @@ body.index .container {
     opacity: 1;
 }
 
+.end-container {
+    position: fixed;
+    display: none;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: black;
+    z-index: 100;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 5vh;
+    text-align: center;
+}
 
-/* GAME 2 ---------------------------------------------- */
-/* ----------------------------------------------------- */
-
+.end-image {
+    margin-top: 5vh;
+    display: none;
+}

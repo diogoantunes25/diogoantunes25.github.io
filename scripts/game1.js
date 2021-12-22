@@ -247,6 +247,7 @@ const parseCollition = (obj) => {
 };
 
 setInterval(() => {
+    if (time == 100) { endGame(true); };
     increaseProgressBar();
     increaseScore(1);
 }, 1200);
@@ -281,11 +282,24 @@ const areColiding = (a, b) => {
 const removeLife = () => {
     lifes--;
     lifeContainer.children[lifes].style.opacity = 0;
-    if (lifes == 0) { endGame(); };
+    if (lifes == 0) { endGame(false); };
 };
 
-const endGame = () => {
+const endGame = (won) => {
     playing = false;
+    const endContainer = document.querySelector(".end-container");
+    endContainer.style.display = "flex";
+    const endText = document.querySelector("#end-text");
+    if (won) {
+        const image = document.querySelector("#win-image");
+        endText.textContent = "Chegaste ao privado com sucesso!";
+        image.style.display="block";
+    }
+    else {
+        const image = document.querySelector("#lose-image");
+        endText.textContent = "Mais uma noite em casa a beber leite morno...";
+        image.style.display="block";
+    }
 };
 
 function obstacle () {
@@ -350,7 +364,7 @@ const showBooleanQuestion = (question, correctAnswer, wrongAnswer, correctFuncti
                 textContainer.classList.remove("on");
                 booleanQuestion.parentElement.style.display = "none";
                 // TODO: have to remove the event listener
-            }, 2000);
+            }, 0);
         }, 1000);
         // TODO: somehow remove the classes after showing the next text
         correctElement.removeEventListener("touchstart", auxFunction1);
@@ -372,7 +386,7 @@ const showBooleanQuestion = (question, correctAnswer, wrongAnswer, correctFuncti
                 textContainer.classList.remove("on");
                 booleanQuestion.parentElement.style.display = "none";
                 // TODO: have to remove the event listener
-            }, 2000);
+            }, 0);
         }, 1000);
         correctElement.removeEventListener("touchstart", auxFunction1);
         wrongElement.removeEventListener("touchstart", auxFunction2);
@@ -431,7 +445,7 @@ const showMultipleChoice = (question, correctAnswer, wrongAnswers, correctFuncti
                 wrongElements.forEach((el) => {
                     el.removeEventListener("touchstart", auxFunction2);
                 });
-            }, 2000);
+            }, 0);
         }, 1000);
     };
 
@@ -454,7 +468,7 @@ const showMultipleChoice = (question, correctAnswer, wrongAnswers, correctFuncti
                 textContainer.classList.remove("on");
                 multipleChoiceQuestion.parentElement.style.display = "none";
                 // TODO: have to remove the event listener
-            }, 2000);
+            }, 0);
         }, 1000);
         correctElement.removeEventListener("touchstart", auxFunction1);
         wrongElements.forEach((el) => {

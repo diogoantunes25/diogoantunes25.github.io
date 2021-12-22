@@ -289,7 +289,7 @@ const endGame = (won) => {
     playing = false;
     const endContainer = document.querySelector(".end-container");
     endContainer.style.display = "flex";
-    const endText = document.querySelector("#end-text");
+    const endText = document.querySelector("end-text");
     if (won) {
         const image = document.querySelector("#win-image");
         endText.textContent = "Chegaste ao privado com sucesso!";
@@ -330,7 +330,7 @@ window.addEventListener("space", () => (jump(pegCharacter)));
 window.addEventListener("touchstart", () => {
         if (playing) {
             startJump(pegCharacter);
-            setTimeout(() => stopJump(pegCharacter), 500);
+            setTimeout(() => stopJump(pegCharacter), 700);
         }
     }
 );

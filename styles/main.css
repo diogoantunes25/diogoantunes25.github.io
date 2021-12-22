@@ -140,7 +140,7 @@ h2 {
     bottom: 0vh;
     left: 10vw;
     position: fixed;
-    transition: bottom .5s;
+    transition: bottom .7s;
     z-index: 10;
 }
 

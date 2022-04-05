@@ -1,21 +1,29 @@
-<html>
-    <head>
-        <!-- CSS Stylesheets -->
-        <link rel="stylesheet" href="styles/reset.css">
-        <link rel="stylesheet" href="styles/main.css">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/addons/p5.sound.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/firebase@8.3.1/firebase.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyAevKp004DjNT6qs6QSECrX25u0Ol5Xwvs",
+        authDomain: "bake-off-2-5df10.firebaseapp.com",
+        databaseURL: "https://ipm-bake-off2-96624-default-rtdb.firebaseio.com/",
+        projectId: "bake-off-2-5df10",
+        storageBucket: "bake-off-2-5df10.appspot.com",
+        messagingSenderId: "774720319849",
+        appId: "1:774720319849:web:8a7f21ab72f550d1734df8",
+        measurementId: "G-D4GHXN5V5X"
+      };
+    </script>
+    
+    <link rel="stylesheet" type="text/css" href="styles/style.css">
+    <meta charset="utf-8"/>
 
-        <!-- Scripts -->
-        <script src="scripts/main.js"></script> 
-    </head>
-    <body class = "index">
-        <!-- TODO: Maybe copy web summit app -->
-        <div class="container">
-            <div>
-                <h1>O peg vai ao urban</h1>
-                <h2>Jogo de natal</h2>
-            </div>
-            <a class="btn-game" id="btn-game1" href="game1.html">Jogar</a>
-            <img id="start-img" src="assets/images/wpp4.png" alt="">
-        </div>
-    </body>
+  </head>
+  <body>
+    <script src="scripts/ppi.js"></script>
+    <script src="scripts/sketch.js"></script>
+    <script src="scripts/support.js"></script>
+  </body>
 </html>

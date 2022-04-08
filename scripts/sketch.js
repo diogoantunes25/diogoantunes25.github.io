@@ -95,12 +95,24 @@ function draw() {
         text("Trial " + (current_trial + 1) + " of " + trials.length, 50, 20);
 
 
+
+    // TODO: Fix current target same as next target
+
 	if (version != VERSIONS.V1) {
 		// Draw line from current to next target
+        stroke(66, 66, 66);
 		currentBounds = getTargetBounds(trials[current_trial]);
 		nextBounds = getTargetBounds(trials[current_trial + 1]);
 		line(currentBounds.x, currentBounds.y, nextBounds.x, nextBounds.y);
 	}
+
+    if (version == VERSIONS.V3 || version == VERSIONS.V5 || version == VERSIONS.V6) {
+        // Draw line from previous to current target
+        stroke(255,255,255);
+		currentBounds = getTargetBounds(trials[current_trial]);
+		previousBounds = getTargetBounds(trials[current_trial - 1]);
+		line(currentBounds.x, currentBounds.y, previousBounds.x, previousBounds.y);
+    }
 
         // Draw all 18 targets
         for (var i = 0; i < 18; i++) drawTarget(i);

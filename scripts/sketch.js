@@ -38,10 +38,23 @@ const VERSIONS = {
 	V4: 3, // Colors + line to next + background change
 	V5: 4, // Colors + line to next and to previous + background change
 	V6: 5, // Colors + line to next and to previous + box
+	V7: 5, // Colors + line to next and to previous + different color for next
 	count: 6
 };
 
+const VERSIONS_TO_TEST = [
+    VERSIONS.V1,
+    VERSIONS.V2,
+    VERSIONS.V3,
+    VERSIONS.V4,
+    VERSIONS.V5,
+    VERSIONS.V6,
+    VERSIONS.V7,
+];
+
 let version;
+
+const CURRENT_REPEATED_FACTOR = 1.8;
 
 // Target class (position and width)
 class Target {
@@ -66,8 +79,17 @@ function setup() {
 }
 
 function selectVersion() {
+    do {
     version = Math.floor(Math.random() * VERSIONS.count);
     version = 5;
+    } while (! version in VERSIONS_TO_TEST); 
+
+    // Create div to store the version
+
+    let div = document.createElement("div");
+    div.textContent = "Version: " + version;
+    document.body.appendChild(div);
+
 	console.log("The version is " + (version + 1));
 }
 
@@ -94,25 +116,21 @@ function draw() {
         textAlign(LEFT);
         text("Trial " + (current_trial + 1) + " of " + trials.length, 50, 20);
 
+        if (version != VERSIONS.V1) {
+            // Draw line from current to next target
+            stroke(66, 66, 66);
+            currentBounds = getTargetBounds(trials[current_trial]);
+            nextBounds = getTargetBounds(trials[current_trial + 1]);
+            line(currentBounds.x, currentBounds.y, nextBounds.x, nextBounds.y);
+        }
 
-
-    // TODO: Fix current target same as next target
-
-	if (version != VERSIONS.V1) {
-		// Draw line from current to next target
-        stroke(66, 66, 66);
-		currentBounds = getTargetBounds(trials[current_trial]);
-		nextBounds = getTargetBounds(trials[current_trial + 1]);
-		line(currentBounds.x, currentBounds.y, nextBounds.x, nextBounds.y);
-	}
-
-    if (version == VERSIONS.V3 || version == VERSIONS.V5 || version == VERSIONS.V6) {
-        // Draw line from previous to current target
-        stroke(255,255,255);
-		currentBounds = getTargetBounds(trials[current_trial]);
-		previousBounds = getTargetBounds(trials[current_trial - 1]);
-		line(currentBounds.x, currentBounds.y, previousBounds.x, previousBounds.y);
-    }
+        if (version == VERSIONS.V3 || version == VERSIONS.V5 || version == VERSIONS.V6) {
+            // Draw line from previous to current target
+            stroke(255,255,255);
+            currentBounds = getTargetBounds(trials[current_trial]);
+            previousBounds = getTargetBounds(trials[current_trial - 1]);
+            line(currentBounds.x, currentBounds.y, previousBounds.x, previousBounds.y);
+        }
 
         // Draw all 18 targets
         for (var i = 0; i < 18; i++) drawTarget(i);
@@ -120,21 +138,20 @@ function draw() {
         // Draw the user input area
         drawInputArea();
 
-	updateCursor();
-	
+        updateCursor();
         // Draw container box
-	if (version == VERSIONS.V6) {
+        if (version == VERSIONS.V6) {
 
-        const marginTop = TOP_PADDING + MARGIN - TARGET_SIZE / 2;
-        const boxHeight = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING);
-        const marginLeft = LEFT_PADDING + MARGIN - TARGET_SIZE / 2;
-        const boxWidth = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING);
+            const marginTop = TOP_PADDING + MARGIN - TARGET_SIZE / 2;
+            const boxHeight = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING);
+            const marginLeft = LEFT_PADDING + MARGIN - TARGET_SIZE / 2;
+            const boxWidth = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING);
 
-        line(marginLeft, marginTop, marginLeft, marginTop + boxHeight);
-        line(marginLeft, marginTop, marginLeft + boxWidth, marginTop);
-        line(marginLeft, marginTop + boxHeight, marginLeft + boxWidth, marginTop + boxHeight);
-        line(marginLeft + boxWidth, marginTop, marginLeft + boxWidth, marginTop + boxHeight);
-    }
+            line(marginLeft, marginTop, marginLeft, marginTop + boxHeight);
+            line(marginLeft, marginTop, marginLeft + boxWidth, marginTop);
+            line(marginLeft, marginTop + boxHeight, marginLeft + boxWidth, marginTop + boxHeight);
+            line(marginLeft + boxWidth, marginTop, marginLeft + boxWidth, marginTop + boxHeight);
+        }
     }
 }
 
@@ -296,13 +313,26 @@ function drawTarget(i) {
 
     // Draws the target
     if (i == trials[current_trial]) {
+        if (version != VERSIONS.V1) {
+            if (trials[current_trial] == trials[current_trial + 1]) {
+                stroke(color(255,255,255));
+                strokeWeight(4);
+            }
+        }
+
         fill(color(255,0,94));
+    }
+    else if (i == trials[current_trial + 1]){
+        // Special case: current == next 
+        stroke(color(255,255,255));
+        fill(color(0, 47, 255));
     }
     else {
         fill(color(0,187,255));
     }
 
     circle(target.x, target.y, target.w);
+    strokeWeight(1);
 }
 
 // Returns the location and size of a given target

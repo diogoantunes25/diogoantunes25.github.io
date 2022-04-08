@@ -66,7 +66,8 @@ function setup() {
 }
 
 function selectVersion() {
-     	version = Math.floor(Math.random() * VERSIONS.count);
+    version = Math.floor(Math.random() * VERSIONS.count);
+    version = 5;
 	console.log("The version is " + (version + 1));
 }
 
@@ -111,37 +112,50 @@ function draw() {
 	
         // Draw container box
 	if (version == VERSIONS.V6) {
-		noStroke();
-		rect(0,0,10000, TOP_PADDING + MARGIN);
-		rect(0,0,LEFT_PADDING + MARGIN, 10000);
-		rect(LEFT_PADDING + MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING),0,50, 10000);
-		rect(0,TOP_PADDING + MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING),10000, 50);
-	}
+
+        const marginTop = TOP_PADDING + MARGIN - TARGET_SIZE / 2;
+        const boxHeight = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING);
+        const marginLeft = LEFT_PADDING + MARGIN - TARGET_SIZE / 2;
+        const boxWidth = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING);
+
+        line(marginLeft, marginTop, marginLeft, marginTop + boxHeight);
+        line(marginLeft, marginTop, marginLeft + boxWidth, marginTop);
+        line(marginLeft, marginTop + boxHeight, marginLeft + boxWidth, marginTop + boxHeight);
+        line(marginLeft + boxWidth, marginTop, marginLeft + boxWidth, marginTop + boxHeight);
+    }
     }
 }
 
 function updateCursor() {
-        // Draw the virtual cursor
-        let x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width);
-        let y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height);
+    // Draw the virtual cursor
+    let x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width);
+    let y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height);
+
+    const cursorRadius = PPCM / 2;
+
+    const marginTopModified = TOP_PADDING + MARGIN - TARGET_SIZE / 2 + cursorRadius / 2;
+    const boxHeightModified = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING) - cursorRadius;
+
+    const marginLeftModified = LEFT_PADDING + MARGIN - TARGET_SIZE / 2 + cursorRadius / 2;
+    const boxWidthModified = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING) - cursorRadius;
+
 
 	if (version == VERSIONS.V6) {
-		if (x < LEFT_PADDING + MARGIN) {
-		    // Make mouseX be 
-		    x = LEFT_PADDING + MARGIN;
+		if (x < marginLeftModified) {
+		    x = marginLeftModified;
 		    mouseX = map(x, 0, width, inputArea.x, inputArea.x + inputArea.w);
 		}
-		else if (x > LEFT_PADDING + MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING)) {
-		    x = LEFT_PADDING + MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING);   
+		else if (x > marginLeftModified + boxWidthModified) {
+		    x = marginLeftModified + boxWidthModified;   
 		    mouseX = map(x, 0, width, inputArea.x, inputArea.x + inputArea.w);
 		}
 
-		if (y < TOP_PADDING + MARGIN) {
-		    y = TOP_PADDING + MARGIN;
+		if (y < marginTopModified) {
+		    y = marginTopModified;
 		    mouseY = map(y, 0, height, inputArea.y, inputArea.y + inputArea.h);
 		}
-		else if (y > TOP_PADDING + MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING)) {
-		    y = TOP_PADDING + MARGIN + 5 * (TARGET_PADDING + TARGET_SIZE);
+		else if (y > marginTopModified + boxHeightModified) {
+		    y = marginTopModified + boxHeightModified;
 		    mouseY = map(y, 0, height, inputArea.y, inputArea.y + inputArea.h);
 		}
 

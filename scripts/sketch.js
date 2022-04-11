@@ -29,8 +29,8 @@ let current_trial = 0;      // the current trial number (indexes into trials arr
 let attempt = 0;      // users complete each test twice to account for practice (attemps 0 and 1)
 let fitts_IDs = [];     // add the Fitts ID for each selection here (-1 when there is a miss)
 
+let last_position;
 // Versions
-
 const NEARBY_DISTANCE = 1/2;
 
 const VERSIONS = {
@@ -88,9 +88,7 @@ function selectVersion() {
         version = Math.floor(Math.random() * VERSIONS.count);
     } while (!VERSIONS_TO_TEST.includes(version)); 
 
-
     // Create div to store the version
-
     let div = document.createElement("div");
     document.body.appendChild(div);
 
@@ -312,11 +310,28 @@ function printAndSavePerformance() {
     }
 }
 
+function get_fitts_id() {
+    if (current_trial == 0) {
+        console.log("Last position defined");
+        last_position = [mouseX, mouseY];
+        return 0;
+    }
+
+    deltaX = Math.abs(mouseX - last_position[0]);
+    deltaY = Math.abs(mouseY - last_position[1]);
+    distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+
+    last_position = [mouseX, mouseY];
+
+    return Math.log2(distance/TARGET_SIZE + 1);
+}
+
 // Mouse button was pressed - lets test to see if hit was in the correct target
 function mousePressed() {
     // Only look for mouse releases during the actual test
     // (i.e., during target selections)
     updateCursor();
+
 
     if (draw_targets) {
         // Get the location and size of the target the user should be trying to select
@@ -329,14 +344,23 @@ function mousePressed() {
             let virtual_x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width)
             let virtual_y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height)
 
-            if (dist(target.x, target.y, virtual_x, virtual_y) < target.w / 2) hits++;
-            else misses++;
+            if (dist(target.x, target.y, virtual_x, virtual_y) < target.w / 2) {
+                hits++;
+                fitts_IDs.push(get_fitts_id());
+            }
+            else {
+                misses++;
+                fitts_IDs.push(-1);
+            }
 
+            console.log("current_trial increased");
             current_trial++;                 // Move on to the next trial/target
         }
 
         // Check if the user has completed all 54 trials
         if (current_trial === trials.length) {
+            console.log(fitts_IDs);
+
             testEndTime = millis();
             draw_targets = false;          // Stop showing targets and the user performance results
             printAndSavePerformance();     // Print the user's results on-screen and send these to the DB

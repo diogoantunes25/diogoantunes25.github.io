@@ -31,7 +31,7 @@ let fitts_IDs = [];     // add the Fitts ID for each selection here (-1 when the
 
 // Versions
 
-const NEARBY_DISTANCE = 3/5;
+const NEARBY_DISTANCE = 1/2;
 
 const VERSIONS = {
 	V1: 0, // Colors

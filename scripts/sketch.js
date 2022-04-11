@@ -81,6 +81,7 @@ function setup() {
 function selectVersion() {
     do {
     version = Math.floor(Math.random() * VERSIONS.count);
+    version = VERSIONS.V4
     } while (! version in VERSIONS_TO_TEST); 
 
     // Create div to store the version

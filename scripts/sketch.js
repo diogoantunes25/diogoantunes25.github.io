@@ -106,7 +106,7 @@ function draw() {
 
 	    if (version == VERSIONS.V4 || version == VERSIONS.V5) {
 		    let NEARBY_DISTANCE = 3/5;
-		    if (dist(target.x, target.y, virtual_x, virtual_y) < target.w * NEARBY_DISTANCE) background(color(255,221,0));
+		    if (dist(target.x, target.y, virtual_x, virtual_y) < target.w * NEARBY_DISTANCE) background(color(34, 255, 0));
 	    }
         }
 

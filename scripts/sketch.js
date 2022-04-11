@@ -61,8 +61,6 @@ const VERSIONS_TO_TEST = [
 
 let version;
 
-const CURRENT_REPEATED_FACTOR = 1.8;
-
 // Target class (position and width)
 class Target {
     constructor(x, y, w) {
@@ -113,6 +111,7 @@ function selectVersion() {
 
 // Runs every frame and redraws the screen
 function draw() {
+
     if (draw_targets) {
         // The user is interacting with the 6x3 target grid
 
@@ -133,6 +132,8 @@ function draw() {
         textAlign(LEFT);
         text("Trial " + (current_trial + 1) + " of " + trials.length, 50, 20);
 
+        strokeWeight(30);
+
         if (version != VERSIONS.V1) {
             // Draw line from current to next target
             stroke(66, 66, 66);
@@ -141,13 +142,18 @@ function draw() {
             line(currentBounds.x, currentBounds.y, nextBounds.x, nextBounds.y);
         }
 
-        if (version == VERSIONS.V3 || version == VERSIONS.V5 || version == VERSIONS.V6) {
+        if (version == VERSIONS.V3 || version == VERSIONS.V5 || version == VERSIONS.V6 ||
+            version == VERSIONS.TEST_1_1 || version == VERSIONS.TEST_1_2 ||
+            version == VERSIONS.TEST_1_3 || version == VERSIONS.TEST_1_4) {
+
             // Draw line from previous to current target
             stroke(255,255,255);
             currentBounds = getTargetBounds(trials[current_trial]);
             previousBounds = getTargetBounds(trials[current_trial - 1]);
             line(currentBounds.x, currentBounds.y, previousBounds.x, previousBounds.y);
         }
+
+        strokeWeight(2);
 
         // Draw all 18 targets
         for (var i = 0; i < 18; i++) drawTarget(i);
@@ -169,6 +175,29 @@ function draw() {
             line(marginLeft, marginTop + boxHeight, marginLeft + boxWidth, marginTop + boxHeight);
             line(marginLeft + boxWidth, marginTop, marginLeft + boxWidth, marginTop + boxHeight);
         }
+
+        // Draw instructions
+        stroke(color(255,255,255));
+        strokeWeight(7);
+        fill(color(255,0,94));
+        circle(width * 0.6, height * 0.3, TARGET_SIZE);
+
+        textSize(50);
+        noStroke();
+        fill(color(255,255,255));
+        text("Instructions", width * 0.6, height * 0.2);
+
+        textSize(30);
+        text("Target repeated - double click", width * 0.6 + TARGET_SIZE, height * 0.3 + TARGET_SIZE / 4);
+        strokeWeight(2);
+
+        textSize(20);
+        fill(color(0,0,0));
+        noStroke();
+        textStyle(BOLD);
+        text("2x", width * 0.6 - TARGET_SIZE / 5, height * 0.3 + TARGET_SIZE / 7);
+        textStyle(NORMAL);
+
     }
 }
 
@@ -320,6 +349,7 @@ function mousePressed() {
                 continue_button.position(width / 2 - continue_button.size().width / 2, height / 2 - continue_button.size().height / 2);
             }
         }
+        else if (current_trial === 1) testStartTime == millis();
     }
 }
 
@@ -381,6 +411,20 @@ function drawTarget(i) {
 
     circle(target.x, target.y, target.w);
     strokeWeight(1);
+
+    if (i == trials[current_trial]) {
+        if (version != VERSIONS.V1) {
+            if (trials[current_trial] == trials[current_trial + 1]) {
+                textSize(20);
+                fill(color(0,0,0));
+                noStroke();
+                textStyle(BOLD);
+                text("2x", target.x - TARGET_SIZE / 5, target.y + TARGET_SIZE / 7);
+                textStyle(NORMAL);
+            }
+        }
+    }
+
 }
 
 // Returns the location and size of a given target

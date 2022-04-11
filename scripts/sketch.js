@@ -31,6 +31,8 @@ let fitts_IDs = [];     // add the Fitts ID for each selection here (-1 when the
 
 // Versions
 
+const NEARBY_DISTANCE = 3/5;
+
 const VERSIONS = {
 	V1: 0, // Colors
 	V2: 1, // Colors + line to next
@@ -38,18 +40,23 @@ const VERSIONS = {
 	V4: 3, // Colors + line to next + background change
 	V5: 4, // Colors + line to next and to previous + background change
 	V6: 5, // Colors + line to next and to previous + box
-	V7: 5, // Colors + line to next and to previous + different color for next
-	count: 6
+	V7: 6, // Colors + line to next and to previous + different color for next
+	V8: 7, // Colors + line to next and to previous + different color for next + cursor changes color
+	V9: 8, // Colors + line to next and to previous + different color for next + target changes color
+    TEST_1_1: 9,
+    TEST_1_2: 10,
+    TEST_1_3: 11,
+    TEST_1_4: 12,
+    TEST_2_1: 13,
+    TEST_2_2: 14,
+	count: 15
 };
 
 const VERSIONS_TO_TEST = [
-    VERSIONS.V1,
-    VERSIONS.V2,
-    VERSIONS.V3,
-    VERSIONS.V4,
-    VERSIONS.V5,
-    VERSIONS.V6,
-    VERSIONS.V7,
+    VERSIONS.TEST_1_1,
+    VERSIONS.TEST_1_2,
+    VERSIONS.TEST_1_3,
+    VERSIONS.TEST_1_4,
 ];
 
 let version;
@@ -80,15 +87,26 @@ function setup() {
 
 function selectVersion() {
     do {
-    version = Math.floor(Math.random() * VERSIONS.count);
-    version = VERSIONS.V4
-    } while (! version in VERSIONS_TO_TEST); 
+        version = Math.floor(Math.random() * VERSIONS.count);
+    } while (!VERSIONS_TO_TEST.includes(version)); 
+
 
     // Create div to store the version
 
     let div = document.createElement("div");
-    div.textContent = "Version: " + version;
     document.body.appendChild(div);
+
+    if (version == VERSIONS.TEST_1_1) {
+        div.textContent = "Teste 1_1";
+    } else if (version == VERSIONS.TEST_1_2) {
+        div.textContent = "Teste 1_2";
+    } else if (version == VERSIONS.TEST_1_3) {
+        div.textContent = "Teste 1_3";
+    } else if (version == VERSIONS.TEST_1_4) {
+        div.textContent = "Teste 1_4";
+    } else {
+        div.textContent = "No test"
+    }
 
 	console.log("The version is " + (version + 1));
 }
@@ -105,10 +123,9 @@ function draw() {
             let virtual_x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width)
             let virtual_y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height)
 
-	    if (version == VERSIONS.V4 || version == VERSIONS.V5) {
-		    let NEARBY_DISTANCE = 3/5;
-		    if (dist(target.x, target.y, virtual_x, virtual_y) < target.w * NEARBY_DISTANCE) background(color(34, 255, 0));
-	    }
+            if (version == VERSIONS.V4 || version == VERSIONS.V5) {
+                if (dist(target.x, target.y, virtual_x, virtual_y) < target.w * NEARBY_DISTANCE) background(color(34, 255, 0));
+            }
         }
 
         // Print trial count at the top left-corner of the canvas
@@ -140,7 +157,7 @@ function draw() {
 
         updateCursor();
         // Draw container box
-        if (version == VERSIONS.V6) {
+        if (version == VERSIONS.V6 || version == VERSIONS.TEST_1_2 || version == VERSIONS.TEST_1_4) {
 
             const marginTop = TOP_PADDING + MARGIN - TARGET_SIZE / 2;
             const boxHeight = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING);
@@ -168,8 +185,7 @@ function updateCursor() {
     const marginLeftModified = LEFT_PADDING + MARGIN - TARGET_SIZE / 2 + cursorRadius / 2;
     const boxWidthModified = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING) - cursorRadius;
 
-
-	if (version == VERSIONS.V6) {
+    if (version == VERSIONS.V6 || version == VERSIONS.TEST_1_2 || version == VERSIONS.TEST_1_4) {
 		if (x < marginLeftModified) {
 		    x = marginLeftModified;
 		    mouseX = map(x, 0, width, inputArea.x, inputArea.x + inputArea.w);
@@ -190,7 +206,23 @@ function updateCursor() {
 
 	}
 
-	fill(color(132, 0, 255));
+    if (version == VERSIONS.V8 || version == VERSIONS.TEST_1_1 || version == VERSIONS.TEST_1_2) {
+
+        let target = getTargetBounds(trials[current_trial]);
+        let virtual_x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width)
+        let virtual_y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height)
+
+        if (dist(target.x, target.y, virtual_x, virtual_y) < target.w * NEARBY_DISTANCE) {
+            fill(color(34, 255, 0));
+        }
+        else {
+            fill(color(132, 0, 255));
+        }
+    }
+    else {
+        fill(color(132, 0, 255));
+    }
+
 	circle(x, y, 0.5 * PPCM);
 
 }
@@ -320,7 +352,23 @@ function drawTarget(i) {
             }
         }
 
-        fill(color(255,0,94));
+
+        if (version == VERSIONS.V9 || version == VERSIONS.TEST_1_3 || version == VERSIONS.TEST_1_4) {
+            let virtual_x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width)
+            let virtual_y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height)
+            let target = getTargetBounds(trials[current_trial]);
+
+            if (dist(target.x, target.y, virtual_x, virtual_y) < target.w * NEARBY_DISTANCE) {
+                fill(color(34, 255, 0));
+            }
+            else {
+                fill(color(255,0,94));
+            }
+        }
+        else {
+            fill(color(255,0,94));
+        }
+
     }
     else if (i == trials[current_trial + 1]){
         // Special case: current == next 

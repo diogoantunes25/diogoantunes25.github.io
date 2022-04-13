@@ -29,7 +29,13 @@ let current_trial = 0;      // the current trial number (indexes into trials arr
 let attempt = 0;      // users complete each test twice to account for practice (attemps 0 and 1)
 let fitts_IDs = [];     // add the Fitts ID for each selection here (-1 when there is a miss)
 
-let last_position;
+let dummy_target = {
+    x: 0,
+    y: 0,
+    i: 0,
+};
+
+let last_position = [0,0];
 // Versions
 const NEARBY_DISTANCE = 1/2;
 
@@ -43,6 +49,7 @@ const VERSIONS = {
 	V7: 6, // Colors + line to next and to previous + different color for next
 	V8: 7, // Colors + line to next and to previous + different color for next + cursor changes color
 	V9: 8, // Colors + line to next and to previous + different color for next + target changes color
+    V10: 9, // Overpowered grid + box
     TEST_1_1: 9,
     TEST_1_2: 10,
     TEST_1_3: 11,
@@ -87,6 +94,8 @@ function selectVersion() {
     do {
         version = Math.floor(Math.random() * VERSIONS.count);
     } while (!VERSIONS_TO_TEST.includes(version)); 
+
+    version = VERSIONS.V10;
 
     // Create div to store the version
     let div = document.createElement("div");
@@ -142,13 +151,18 @@ function draw() {
 
         if (version == VERSIONS.V3 || version == VERSIONS.V5 || version == VERSIONS.V6 ||
             version == VERSIONS.TEST_1_1 || version == VERSIONS.TEST_1_2 ||
-            version == VERSIONS.TEST_1_3 || version == VERSIONS.TEST_1_4) {
+            version == VERSIONS.TEST_1_3 || version == VERSIONS.TEST_1_4 ||
+            version == VERSIONS.V10) {
 
             // Draw line from previous to current target
             stroke(255,255,255);
             currentBounds = getTargetBounds(trials[current_trial]);
             previousBounds = getTargetBounds(trials[current_trial - 1]);
             line(currentBounds.x, currentBounds.y, previousBounds.x, previousBounds.y);
+        }
+
+        if (version == VERSIONS.V10) {
+            drawGrid();
         }
 
         strokeWeight(2);
@@ -160,18 +174,18 @@ function draw() {
         drawInputArea();
 
         updateCursor();
+
         // Draw container box
         if (version == VERSIONS.V6 || version == VERSIONS.TEST_1_2 || version == VERSIONS.TEST_1_4) {
+            const MARGIN_TOP = TOP_PADDING + MARGIN - TARGET_SIZE / 2;
+            const BOX_HEIGHT = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING);
+            const MARGIN_LEFT = LEFT_PADDING + MARGIN - TARGET_SIZE / 2;
+            const BOX_WIDTH = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING);
 
-            const marginTop = TOP_PADDING + MARGIN - TARGET_SIZE / 2;
-            const boxHeight = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING);
-            const marginLeft = LEFT_PADDING + MARGIN - TARGET_SIZE / 2;
-            const boxWidth = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING);
-
-            line(marginLeft, marginTop, marginLeft, marginTop + boxHeight);
-            line(marginLeft, marginTop, marginLeft + boxWidth, marginTop);
-            line(marginLeft, marginTop + boxHeight, marginLeft + boxWidth, marginTop + boxHeight);
-            line(marginLeft + boxWidth, marginTop, marginLeft + boxWidth, marginTop + boxHeight);
+            line(MARGIN_LEFT, MARGIN_TOP, MARGIN_LEFT, MARGIN_TOP + BOX_HEIGHT);
+            line(MARGIN_LEFT, MARGIN_TOP, MARGIN_LEFT + BOX_WIDTH, MARGIN_TOP);
+            line(MARGIN_LEFT, MARGIN_TOP + BOX_HEIGHT, MARGIN_LEFT + BOX_WIDTH, MARGIN_TOP + BOX_HEIGHT);
+            line(MARGIN_LEFT + BOX_WIDTH, MARGIN_TOP, MARGIN_LEFT + BOX_WIDTH, MARGIN_TOP + BOX_HEIGHT);
         }
 
         // Draw instructions
@@ -196,7 +210,74 @@ function draw() {
         text("2x", width * 0.6 - TARGET_SIZE / 5, height * 0.3 + TARGET_SIZE / 7);
         textStyle(NORMAL);
 
+        if (version == VERSIONS.V10) {
+            drawFakeCursor();
+            drawMiniature();
+        }
     }
+}
+
+function drawGrid() {
+    const MARGIN_TOP = TOP_PADDING + MARGIN - TARGET_SIZE / 2;
+    const BOX_HEIGHT = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING);
+    const MARGIN_LEFT = LEFT_PADDING + MARGIN - TARGET_SIZE / 2;
+    const BOX_WIDTH = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING);
+
+    const COL1 = LEFT_PADDING + MARGIN;
+    const ROW1 = TOP_PADDING + MARGIN;
+    const COL_COUNT = 3;
+    const ROW_COUNT = 6;
+
+    const CELL_SIDE = (TARGET_PADDING + TARGET_SIZE);
+
+    strokeWeight(2);
+
+    for (let i = 0; i < COL_COUNT + 1; i++) {
+        line(COL1 + (TARGET_PADDING + TARGET_SIZE) * i - CELL_SIDE / 2, MARGIN_TOP - CELL_SIDE / 4, COL1 + (TARGET_PADDING + TARGET_SIZE) * i - CELL_SIDE / 2, MARGIN_TOP + BOX_HEIGHT + CELL_SIDE / 4); 
+    }
+
+    for (let i = 0; i < ROW_COUNT + 1; i++) {
+        line(MARGIN_LEFT - CELL_SIDE / 4, ROW1 + (TARGET_PADDING + TARGET_SIZE) * i - CELL_SIDE / 2,MARGIN_LEFT + BOX_WIDTH + CELL_SIDE / 4, ROW1 + (TARGET_PADDING + TARGET_SIZE) * i - CELL_SIDE / 2);
+    }
+}
+
+function distanceCursorTarget(i) {
+    let virtual_x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width);
+    let virtual_y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height);
+
+    target = getTargetBounds(i);
+
+    distance = Math.sqrt((target.x - virtual_x) ** 2 + (target.y - virtual_y) ** 2);
+    
+    return distance;
+}
+
+function getClosestTarget() {
+    let closestDistance = distanceCursorTarget(0);
+    let closest = 0;
+    let distance;
+    
+    for (var i = 1; i < 18; i++) {
+        distance = distanceCursorTarget(i);
+        if (distance < closestDistance) {
+            closestDistance = distance;
+            closest = i;
+        }
+    }
+
+    return closest;
+}
+
+function drawFakeCursor() {
+    closest = getClosestTarget();
+    closestBounds = getTargetBounds(closest);
+
+    dummy_target.i = closest;
+    dummy_target.x = closestBounds.x;
+    dummy_target.y = closestBounds.y;
+
+    fill(color(67, 235, 52));
+    circle(closestBounds.x, closestBounds.y, 0.5 * PPCM);
 }
 
 function updateCursor() {
@@ -205,10 +286,8 @@ function updateCursor() {
     let y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height);
 
     const cursorRadius = PPCM / 2;
-
     const marginTopModified = TOP_PADDING + MARGIN - TARGET_SIZE / 2 + cursorRadius / 2;
     const boxHeightModified = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING) - cursorRadius;
-
     const marginLeftModified = LEFT_PADDING + MARGIN - TARGET_SIZE / 2 + cursorRadius / 2;
     const boxWidthModified = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING) - cursorRadius;
 
@@ -232,6 +311,34 @@ function updateCursor() {
 		}
 
 	}
+
+    if (version == VERSIONS.V10) {
+
+        const CURSOR_RADIUS = PPCM / 2;
+        const CELL_SIDE = (TARGET_PADDING + TARGET_SIZE);
+        const MARGIN_TOP = TOP_PADDING + MARGIN - TARGET_SIZE / 2 - CELL_SIDE/4 + CURSOR_RADIUS / 2;
+        const BOX_HEIGHT = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING) + CELL_SIDE /2 - CURSOR_RADIUS;
+        const MARGIN_LEFT = LEFT_PADDING + MARGIN - TARGET_SIZE / 2 - CELL_SIDE/4 + CURSOR_RADIUS / 2;
+        const BOX_WIDTH = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING) + CELL_SIDE/2 - CURSOR_RADIUS;
+
+        if (x < MARGIN_LEFT) {
+		    x = MARGIN_LEFT;
+		    mouseX = map(x, 0, width, inputArea.x, inputArea.x + inputArea.w);
+		}
+		else if (x > MARGIN_LEFT + BOX_WIDTH) {
+		    x = MARGIN_LEFT + BOX_WIDTH;   
+		    mouseX = map(x, 0, width, inputArea.x, inputArea.x + inputArea.w);
+		}
+
+		if (y < MARGIN_TOP) {
+		    y = MARGIN_TOP;
+		    mouseY = map(y, 0, height, inputArea.y, inputArea.y + inputArea.h);
+		}
+        else if (y > MARGIN_TOP + BOX_HEIGHT) {
+		    y = MARGIN_TOP + BOX_HEIGHT;
+		    mouseY = map(y, 0, height, inputArea.y, inputArea.y + inputArea.h);
+		}
+    }
 
     if (version == VERSIONS.V8 || version == VERSIONS.TEST_1_1 || version == VERSIONS.TEST_1_2) {
 
@@ -278,7 +385,6 @@ function printAndSavePerformance() {
     text("Average time for each target (+ penalty): " + target_w_penalty + "s", width / 2, 220);
 
     // Print Fitts IDS (one per target, -1 if failed selection, optional)
-    // 
 
     // Saves results (DO NOT CHANGE!)
     let attempt_data =
@@ -312,8 +418,6 @@ function printAndSavePerformance() {
 
 function get_fitts_id() {
     if (current_trial == 0) {
-        console.log("Last position defined");
-        last_position = [mouseX, mouseY];
         return 0;
     }
 
@@ -341,10 +445,10 @@ function mousePressed() {
         // increasing either the 'hits' or 'misses' counters
 
         if (insideInputArea(mouseX, mouseY)) {
-            let virtual_x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width)
-            let virtual_y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height)
+            let virtual_x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width);
+            let virtual_y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height);
 
-            if (dist(target.x, target.y, virtual_x, virtual_y) < target.w / 2) {
+            if (dist(target.x,target.y, dummy_target.x, dummy_target.y) < target.w / 2) {
                 hits++;
                 fitts_IDs.push(get_fitts_id());
             }
@@ -353,13 +457,13 @@ function mousePressed() {
                 fitts_IDs.push(-1);
             }
 
-            console.log("current_trial increased");
             current_trial++;                 // Move on to the next trial/target
         }
 
         // Check if the user has completed all 54 trials
         if (current_trial === trials.length) {
-            console.log(fitts_IDs);
+
+            noStroke();
 
             testEndTime = millis();
             draw_targets = false;          // Stop showing targets and the user performance results
@@ -516,4 +620,93 @@ function drawInputArea() {
     strokeWeight(2);
 
     rect(inputArea.x, inputArea.y, inputArea.w, inputArea.h);
+}
+
+function drawMiniature() {
+
+    const CURSOR_RADIUS = PPCM / 2;
+    const CELL_SIDE = (TARGET_PADDING + TARGET_SIZE);
+    const MARGIN_TOP = TOP_PADDING + MARGIN - TARGET_SIZE / 2 - CELL_SIDE/4 + CURSOR_RADIUS / 2;
+    const BOX_HEIGHT = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING) + CELL_SIDE /2 - CURSOR_RADIUS;
+    const MARGIN_LEFT = LEFT_PADDING + MARGIN - TARGET_SIZE / 2 - CELL_SIDE/4 + CURSOR_RADIUS / 2;
+    const BOX_WIDTH = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING) + CELL_SIDE/2 - CURSOR_RADIUS;
+    const COL_COUNT = 3;
+    const ROW_COUNT = 6;
+
+    x1 = map(MARGIN_LEFT, 0, width, inputArea.x, inputArea.x + inputArea.w);
+    y1 = map(MARGIN_TOP, 0, height, inputArea.y, inputArea.y + inputArea.h);
+    cell_side = map(CELL_SIDE, 0, width, inputArea.x, inputArea.x + inputArea.w) - inputArea.x;
+    x2 = x1 + cell_side * COL_COUNT;
+    y2 = y1 + cell_side * ROW_COUNT;
+    target_padding = map(MARGIN_LEFT, 0, width, inputArea.x, inputArea.x + inputArea.w) - inputArea.x;
+    target = map(MARGIN_LEFT, 0, width, inputArea.x, inputArea.x + inputArea.w) - inputArea.x;
+
+    stroke(255,255,255);
+    strokeWeight(2);
+
+    for (let i = 0; i < COL_COUNT + 1; i++) {
+        line(x1 + cell_side * i, y1, x1 + cell_side * i, y2);
+    }
+
+    for (let i = 0; i < ROW_COUNT + 1; i++) {
+        line(x1, y1 + cell_side * i, x2, y1 + cell_side * i);
+    }
+    
+    // Draw selected target
+
+    fill(255, 0, 0);
+    xSelected = x1 + cell_side * (trials[current_trial] % 3);
+    ySelected = y1 + cell_side * Math.floor(trials[current_trial] / 3);
+    rect(xSelected, ySelected, cell_side, cell_side);
+
+    xNext = x1 + cell_side * (trials[current_trial + 1] % 3);
+    yNext = y1 + cell_side * Math.floor(trials[current_trial + 1] / 3);
+    if (trials[current_trial] == trials[current_trial+1]) {
+        strokeWeight(5); 
+        stroke(255,255,255);
+        rect(xSelected, ySelected, cell_side, cell_side);
+        strokeWeight(2);
+    }
+
+    // Draw next target
+    // else {
+    //     rect(xNext, yNext, cell_side, cell_side);
+    // }
+
+    // Draw hover
+    xHover = x1 + cell_side * (dummy_target.i % 3);
+    yHover = y1 + cell_side * Math.floor(dummy_target.i / 3);
+
+    if (dummy_target.i == trials[current_trial]) fill(55, 255, 0); else fill(82, 82, 82);
+    rect(xHover, yHover, cell_side, cell_side);
+
+    if (trials[current_trial] == trials[current_trial+1]) {
+        noStroke();
+        fill(0,0,0);
+        text("2x", xSelected + cell_side / 4, ySelected + cell_side * 7 / 10);
+    }
+
+    // Path lines
+    // xPrev = x1 + cell_side * (trials[current_trial - 1] % 3);
+    // yPrev = y1 + cell_side * Math.floor(trials[current_trial - 1] / 3);
+
+    // centerPrevious = {
+    //     x: xPrev + cell_side / 2,
+    //     y: yPrev + cell_side / 2
+    // };
+
+    // centerCurrent = {
+    //     x: xSelected + cell_side / 2,
+    //     y: ySelected + cell_side / 2
+    // };
+
+    // centerNext = {
+    //     x: xNext + cell_side / 2,
+    //     y: yNext + cell_side / 2
+    // };
+
+    // stroke(225, 0, 255);
+    // line(centerPrevious.x, centerPrevious.y, centerCurrent.x, centerCurrent.y);
+    // stroke(59, 59, 59);
+    // line(centerCurrent.x, centerCurrent.y, centerNext.x, centerNext.y);
 }

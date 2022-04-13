@@ -386,6 +386,30 @@ function printAndSavePerformance() {
 
     // Print Fitts IDS (one per target, -1 if failed selection, optional)
 
+    const INITIAL_HEIGHT = 350;
+    const VARIABLE_HEIGHT = 23;
+
+    textAlign(CENTER);
+    text("Fitts index performance", width / 2, INITIAL_HEIGHT - 50);
+
+    for (let i = 0; i < fitts_IDs.length / 2; i++) {
+        if (fitts_IDs[i] != -1) {
+            text("Target " + (i + 1) + ": " + fitts_IDs[i], width/3, INITIAL_HEIGHT + VARIABLE_HEIGHT * i);
+        }
+        else {
+            text("Target: MISSED", width/3, INITIAL_HEIGHT + VARIABLE_HEIGHT * i);
+        }
+    }
+
+    for (let i = fitts_IDs.length / 2; i < fitts_IDs.length; i++) {
+        if (fitts_IDs[i] != -1) {
+            text("Target " + (i + 1) + ": " + fitts_IDs[i], (width/3) * 2, INITIAL_HEIGHT + VARIABLE_HEIGHT * (i - fitts_IDs.length/2));
+        }
+        else {
+            text("Target: MISSED", (width/3) * 2, INITIAL_HEIGHT + VARIABLE_HEIGHT * (i - fitts_IDs.length/2));
+        }
+    }
+
     // Saves results (DO NOT CHANGE!)
     let attempt_data =
     {
@@ -462,6 +486,8 @@ function mousePressed() {
 
         // Check if the user has completed all 54 trials
         if (current_trial === trials.length) {
+
+            console.log(fitts_IDs);
 
             noStroke();
 

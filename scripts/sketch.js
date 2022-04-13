@@ -29,6 +29,11 @@ let current_trial = 0;      // the current trial number (indexes into trials arr
 let attempt = 0;      // users complete each test twice to account for practice (attemps 0 and 1)
 let fitts_IDs = [];     // add the Fitts ID for each selection here (-1 when there is a miss)
 
+let sound = {
+    success: null,
+    error: null,
+};
+
 let dummy_target = {
     x: 0,
     y: 0,
@@ -75,6 +80,12 @@ class Target {
         this.y = y;
         this.w = w;
     }
+}
+
+function preload() {
+    soundFormats('mp3');
+    sound.success = loadSound("assets/success.mp3");
+    sound.error = loadSound("assets/error.mp3");
 }
 
 // Runs once at the start
@@ -474,10 +485,12 @@ function mousePressed() {
 
             if (dist(target.x,target.y, dummy_target.x, dummy_target.y) < target.w / 2) {
                 hits++;
+                sound.success.play();
                 fitts_IDs.push(get_fitts_id());
             }
             else {
                 misses++;
+                sound.error.play();
                 fitts_IDs.push(-1);
             }
 

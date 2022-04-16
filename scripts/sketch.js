@@ -516,7 +516,7 @@ function mousePressed() {
                 continue_button.position(width / 2 - continue_button.size().width / 2, height / 2 - continue_button.size().height / 2);
             }
         }
-        else if (current_trial === 1) testStartTime == millis();
+        else if (current_trial === 1) testStartTime = millis();
     }
 }
 

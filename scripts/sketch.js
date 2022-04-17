@@ -706,11 +706,11 @@ function drawMiniature() {
         rect(xSelected, ySelected, cell_side, cell_side);
         strokeWeight(2);
     }
-
     // Draw next target
-    // else {
-    //     rect(xNext, yNext, cell_side, cell_side);
-    // }
+    else {
+        fill(255,255,255);
+        rect(xNext, yNext, cell_side, cell_side);
+    }
 
     // Draw hover
     xHover = x1 + cell_side * (dummy_target.i % 3);

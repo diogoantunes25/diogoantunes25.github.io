@@ -7,7 +7,7 @@
 
 // Database (CHANGE THESE!)
 const GROUP_NUMBER = 0;      // Add your group number here as an integer (e.g., 2, 3)
-const BAKE_OFF_DAY = true;  // Set to 'true' before sharing during the bake-off day
+const BAKE_OFF_DAY = false;  // Set to 'true' before sharing during the bake-off day
 
 // Target and grid properties (DO NOT CHANGE!)
 let PPI, PPCM;
@@ -29,49 +29,20 @@ let current_trial = 0;      // the current trial number (indexes into trials arr
 let attempt = 0;      // users complete each test twice to account for practice (attemps 0 and 1)
 let fitts_IDs = [];     // add the Fitts ID for each selection here (-1 when there is a miss)
 
+const NEARBY_DISTANCE = 1/2;
+
 let sound = {
     success: null,
     error: null,
 };
 
-let dummy_target = {
-    x: 0,
-    y: 0,
-    i: 0,
-};
+// Cursor information
+let snapCursor = {x: 0, y: 0, i: 0};
+let lastPosition = {x: 0, y: 0};
 
-let last_position = [0,0];
-// Versions
-const NEARBY_DISTANCE = 1/2;
+// Color settings
+COLORS = {}
 
-const VERSIONS = {
-	V1: 0, // Colors
-	V2: 1, // Colors + line to next
-	V3: 2, // Colors + line to next and to previous
-	V4: 3, // Colors + line to next + background change
-	V5: 4, // Colors + line to next and to previous + background change
-	V6: 5, // Colors + line to next and to previous + box
-	V7: 6, // Colors + line to next and to previous + different color for next
-	V8: 7, // Colors + line to next and to previous + different color for next + cursor changes color
-	V9: 8, // Colors + line to next and to previous + different color for next + target changes color
-    V10: 9, // Overpowered grid + box
-    TEST_1_1: 9,
-    TEST_1_2: 10,
-    TEST_1_3: 11,
-    TEST_1_4: 12,
-    TEST_2_1: 13,
-    TEST_2_2: 14,
-	count: 15
-};
-
-const VERSIONS_TO_TEST = [
-    VERSIONS.TEST_1_1,
-    VERSIONS.TEST_1_2,
-    VERSIONS.TEST_1_3,
-    VERSIONS.TEST_1_4,
-];
-
-let version;
 
 // Target class (position and width)
 class Target {
@@ -93,39 +64,27 @@ function setup() {
     createCanvas(700, 500);    // window size in px before we go into fullScreen()
     frameRate(60);             // frame rate (DO NOT CHANGE!)
 
-    selectVersion();
-
     randomizeTrials();         // randomize the trial order at the start of execution
 
     textFont("Arial", 18);     // font size for the majority of the text
     drawUserIDScreen();        // draws the user start-up screen (student ID and display size)
+
+    setUpColorScheme();
 }
 
-function selectVersion() {
-    do {
-        version = Math.floor(Math.random() * VERSIONS.count);
-    } while (!VERSIONS_TO_TEST.includes(version)); 
-
-    version = VERSIONS.V10;
-
-    // Create div to store the version
-    let div = document.createElement("div");
-    document.body.appendChild(div);
-
-    if (version == VERSIONS.TEST_1_1) {
-        div.textContent = "Teste 1_1";
-    } else if (version == VERSIONS.TEST_1_2) {
-        div.textContent = "Teste 1_2";
-    } else if (version == VERSIONS.TEST_1_3) {
-        div.textContent = "Teste 1_3";
-    } else if (version == VERSIONS.TEST_1_4) {
-        div.textContent = "Teste 1_4";
-    } else {
-        div.textContent = "No test"
-    }
-
-	console.log("The version is " + (version + 1));
+function setUpColorScheme() {
+    COLORS.SNAP_CURSOR = color(67, 235, 52);
+    COLORS.GHOST_CURSOR = color(132, 0, 255);
+    COLORS.TARGET_MAIN = color(255,0,94);
+    COLORS.NEXT_MAIN = color(0, 47, 255);
+    COLORS.DEFAULT_MAIN = color(0,187,255);
+    // COLORS.HOVER_TARGET_MINIATURE = color(55, 255, 0);
+    COLORS.HOVER_TARGET_MINIATURE = color(255, 0, 0);
+    COLORS.NEXT_MINIATURE = color(255,255,255);
+    COLORS.HOVER_DEFAULT_MINIATURE = color(82, 82, 82);
+    COLORS.TARGET_MINIATURE = color(255, 0, 0);
 }
+
 
 // Runs every frame and redraws the screen
 function draw() {
@@ -134,47 +93,30 @@ function draw() {
         // The user is interacting with the 6x3 target grid
 
         // Sets background to black
-        let target = getTargetBounds(trials[current_trial]);
         background(color(0, 0, 0));        
-        if (insideInputArea(mouseX, mouseY)) {
-            let virtual_x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width)
-            let virtual_y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height)
-
-            if (version == VERSIONS.V4 || version == VERSIONS.V5) {
-                if (dist(target.x, target.y, virtual_x, virtual_y) < target.w * NEARBY_DISTANCE) background(color(34, 255, 0));
-            }
-        }
 
         // Print trial count at the top left-corner of the canvas
         fill(color(255, 255, 255));
         textAlign(LEFT);
+
         text("Trial " + (current_trial + 1) + " of " + trials.length, 50, 20);
 
         strokeWeight(30);
 
-        if (version != VERSIONS.V1) {
-            // Draw line from current to next target
-            stroke(66, 66, 66);
-            currentBounds = getTargetBounds(trials[current_trial]);
-            nextBounds = getTargetBounds(trials[current_trial + 1]);
-            line(currentBounds.x, currentBounds.y, nextBounds.x, nextBounds.y);
-        }
+        // Draw line from current to next target
+        stroke(66, 66, 66);
+        currentBounds = getTargetBounds(trials[current_trial]);
+        nextBounds = getTargetBounds(trials[current_trial + 1]);
+        line(currentBounds.x, currentBounds.y, nextBounds.x, nextBounds.y);
 
-        if (version == VERSIONS.V3 || version == VERSIONS.V5 || version == VERSIONS.V6 ||
-            version == VERSIONS.TEST_1_1 || version == VERSIONS.TEST_1_2 ||
-            version == VERSIONS.TEST_1_3 || version == VERSIONS.TEST_1_4 ||
-            version == VERSIONS.V10) {
+        // Draw line from previous to current target
+        stroke(255,255,255);
+        currentBounds = getTargetBounds(trials[current_trial]);
+        previousBounds = getTargetBounds(trials[current_trial - 1]);
+        line(currentBounds.x, currentBounds.y, previousBounds.x, previousBounds.y);
 
-            // Draw line from previous to current target
-            stroke(255,255,255);
-            currentBounds = getTargetBounds(trials[current_trial]);
-            previousBounds = getTargetBounds(trials[current_trial - 1]);
-            line(currentBounds.x, currentBounds.y, previousBounds.x, previousBounds.y);
-        }
-
-        if (version == VERSIONS.V10) {
-            drawGrid();
-        }
+        // Draws grid around targets
+        drawGrid();
 
         strokeWeight(2);
 
@@ -184,22 +126,22 @@ function draw() {
         // Draw the user input area
         drawInputArea();
 
-        updateCursor();
-
-        // Draw container box
-        if (version == VERSIONS.V6 || version == VERSIONS.TEST_1_2 || version == VERSIONS.TEST_1_4) {
-            const MARGIN_TOP = TOP_PADDING + MARGIN - TARGET_SIZE / 2;
-            const BOX_HEIGHT = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING);
-            const MARGIN_LEFT = LEFT_PADDING + MARGIN - TARGET_SIZE / 2;
-            const BOX_WIDTH = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING);
-
-            line(MARGIN_LEFT, MARGIN_TOP, MARGIN_LEFT, MARGIN_TOP + BOX_HEIGHT);
-            line(MARGIN_LEFT, MARGIN_TOP, MARGIN_LEFT + BOX_WIDTH, MARGIN_TOP);
-            line(MARGIN_LEFT, MARGIN_TOP + BOX_HEIGHT, MARGIN_LEFT + BOX_WIDTH, MARGIN_TOP + BOX_HEIGHT);
-            line(MARGIN_LEFT + BOX_WIDTH, MARGIN_TOP, MARGIN_LEFT + BOX_WIDTH, MARGIN_TOP + BOX_HEIGHT);
-        }
-
         // Draw instructions
+        drawInstructions();
+
+        // Draw the (free) ghost cursor
+        drawGhostCursor();
+
+        // Draw the (real) snap cursor
+        drawSnapCursor();
+
+        // Draw the miniature of the targets on the input area
+        drawMiniature();
+    }
+}
+
+// Draw instructions
+function drawInstructions() {
         stroke(color(255,255,255));
         strokeWeight(7);
         fill(color(255,0,94));
@@ -220,12 +162,6 @@ function draw() {
         textStyle(BOLD);
         text("2x", width * 0.6 - TARGET_SIZE / 5, height * 0.3 + TARGET_SIZE / 7);
         textStyle(NORMAL);
-
-        if (version == VERSIONS.V10) {
-            drawFakeCursor();
-            drawMiniature();
-        }
-    }
 }
 
 function drawGrid() {
@@ -253,12 +189,12 @@ function drawGrid() {
 }
 
 function distanceCursorTarget(i) {
-    let virtual_x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width);
-    let virtual_y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height);
+    let virtualX = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width);
+    let virtualY = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height);
 
     target = getTargetBounds(i);
 
-    distance = Math.sqrt((target.x - virtual_x) ** 2 + (target.y - virtual_y) ** 2);
+    distance = Math.sqrt((target.x - virtualX) ** 2 + (target.y - virtualY) ** 2);
     
     return distance;
 }
@@ -279,97 +215,51 @@ function getClosestTarget() {
     return closest;
 }
 
-function drawFakeCursor() {
+function drawSnapCursor() {
     closest = getClosestTarget();
     closestBounds = getTargetBounds(closest);
 
-    dummy_target.i = closest;
-    dummy_target.x = closestBounds.x;
-    dummy_target.y = closestBounds.y;
+    snapCursor.i = closest;
+    snapCursor.x = closestBounds.x;
+    snapCursor.y = closestBounds.y;
 
-    fill(color(67, 235, 52));
+    fill(COLORS.SNAP_CURSOR);
     circle(closestBounds.x, closestBounds.y, 0.5 * PPCM);
 }
 
-function updateCursor() {
-    // Draw the virtual cursor
+// Draw the fake virtual cursor (does not snap)
+function drawGhostCursor() {
     let x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width);
     let y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height);
 
-    const cursorRadius = PPCM / 2;
-    const marginTopModified = TOP_PADDING + MARGIN - TARGET_SIZE / 2 + cursorRadius / 2;
-    const boxHeightModified = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING) - cursorRadius;
-    const marginLeftModified = LEFT_PADDING + MARGIN - TARGET_SIZE / 2 + cursorRadius / 2;
-    const boxWidthModified = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING) - cursorRadius;
+    const CURSOR_RADIUS = PPCM / 2;
+    const CELL_SIDE = (TARGET_PADDING + TARGET_SIZE);
+    const MARGIN_TOP = TOP_PADDING + MARGIN - TARGET_SIZE / 2 - CELL_SIDE/4 + CURSOR_RADIUS / 2;
+    const BOX_HEIGHT = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING) + CELL_SIDE /2 - CURSOR_RADIUS;
+    const MARGIN_LEFT = LEFT_PADDING + MARGIN - TARGET_SIZE / 2 - CELL_SIDE/4 + CURSOR_RADIUS / 2;
+    const BOX_WIDTH = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING) + CELL_SIDE/2 - CURSOR_RADIUS;
 
-    if (version == VERSIONS.V6 || version == VERSIONS.TEST_1_2 || version == VERSIONS.TEST_1_4) {
-		if (x < marginLeftModified) {
-		    x = marginLeftModified;
-		    mouseX = map(x, 0, width, inputArea.x, inputArea.x + inputArea.w);
-		}
-		else if (x > marginLeftModified + boxWidthModified) {
-		    x = marginLeftModified + boxWidthModified;   
-		    mouseX = map(x, 0, width, inputArea.x, inputArea.x + inputArea.w);
-		}
-
-		if (y < marginTopModified) {
-		    y = marginTopModified;
-		    mouseY = map(y, 0, height, inputArea.y, inputArea.y + inputArea.h);
-		}
-		else if (y > marginTopModified + boxHeightModified) {
-		    y = marginTopModified + boxHeightModified;
-		    mouseY = map(y, 0, height, inputArea.y, inputArea.y + inputArea.h);
-		}
-
-	}
-
-    if (version == VERSIONS.V10) {
-
-        const CURSOR_RADIUS = PPCM / 2;
-        const CELL_SIDE = (TARGET_PADDING + TARGET_SIZE);
-        const MARGIN_TOP = TOP_PADDING + MARGIN - TARGET_SIZE / 2 - CELL_SIDE/4 + CURSOR_RADIUS / 2;
-        const BOX_HEIGHT = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING) + CELL_SIDE /2 - CURSOR_RADIUS;
-        const MARGIN_LEFT = LEFT_PADDING + MARGIN - TARGET_SIZE / 2 - CELL_SIDE/4 + CURSOR_RADIUS / 2;
-        const BOX_WIDTH = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING) + CELL_SIDE/2 - CURSOR_RADIUS;
-
-        if (x < MARGIN_LEFT) {
-		    x = MARGIN_LEFT;
-		    mouseX = map(x, 0, width, inputArea.x, inputArea.x + inputArea.w);
-		}
-		else if (x > MARGIN_LEFT + BOX_WIDTH) {
-		    x = MARGIN_LEFT + BOX_WIDTH;   
-		    mouseX = map(x, 0, width, inputArea.x, inputArea.x + inputArea.w);
-		}
-
-		if (y < MARGIN_TOP) {
-		    y = MARGIN_TOP;
-		    mouseY = map(y, 0, height, inputArea.y, inputArea.y + inputArea.h);
-		}
-        else if (y > MARGIN_TOP + BOX_HEIGHT) {
-		    y = MARGIN_TOP + BOX_HEIGHT;
-		    mouseY = map(y, 0, height, inputArea.y, inputArea.y + inputArea.h);
-		}
+    // If cursor goes out of container box, move it back in
+    if (x < MARGIN_LEFT) {
+        x = MARGIN_LEFT;
+        mouseX = map(x, 0, width, inputArea.x, inputArea.x + inputArea.w);
+    }
+    else if (x > MARGIN_LEFT + BOX_WIDTH) {
+        x = MARGIN_LEFT + BOX_WIDTH;   
+        mouseX = map(x, 0, width, inputArea.x, inputArea.x + inputArea.w);
     }
 
-    if (version == VERSIONS.V8 || version == VERSIONS.TEST_1_1 || version == VERSIONS.TEST_1_2) {
-
-        let target = getTargetBounds(trials[current_trial]);
-        let virtual_x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width)
-        let virtual_y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height)
-
-        if (dist(target.x, target.y, virtual_x, virtual_y) < target.w * NEARBY_DISTANCE) {
-            fill(color(34, 255, 0));
-        }
-        else {
-            fill(color(132, 0, 255));
-        }
+    if (y < MARGIN_TOP) {
+        y = MARGIN_TOP;
+        mouseY = map(y, 0, height, inputArea.y, inputArea.y + inputArea.h);
     }
-    else {
-        fill(color(132, 0, 255));
+    else if (y > MARGIN_TOP + BOX_HEIGHT) {
+        y = MARGIN_TOP + BOX_HEIGHT;
+        mouseY = map(y, 0, height, inputArea.y, inputArea.y + inputArea.h);
     }
 
+    fill(COLORS.GHOST_CURSOR);
 	circle(x, y, 0.5 * PPCM);
-
 }
 
 // Print and save results at the end of 54 trials
@@ -403,6 +293,7 @@ function printAndSavePerformance() {
     textAlign(CENTER);
     text("Fitts index performance", width / 2, INITIAL_HEIGHT - 50);
 
+    // Print first column of fits IDs
     for (let i = 0; i < fitts_IDs.length / 2; i++) {
         if (fitts_IDs[i] != -1) {
             text("Target " + (i + 1) + ": " + fitts_IDs[i], width/3, INITIAL_HEIGHT + VARIABLE_HEIGHT * i);
@@ -412,6 +303,7 @@ function printAndSavePerformance() {
         }
     }
 
+    // Print second column of fits IDs
     for (let i = fitts_IDs.length / 2; i < fitts_IDs.length; i++) {
         if (fitts_IDs[i] != -1) {
             text("Target " + (i + 1) + ": " + fitts_IDs[i], (width/3) * 2, INITIAL_HEIGHT + VARIABLE_HEIGHT * (i - fitts_IDs.length/2));
@@ -451,16 +343,11 @@ function printAndSavePerformance() {
     }
 }
 
-function get_fitts_id() {
-    if (current_trial == 0) {
-        return 0;
-    }
-
-    deltaX = Math.abs(mouseX - last_position[0]);
-    deltaY = Math.abs(mouseY - last_position[1]);
-    distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
-
-    last_position = [mouseX, mouseY];
+function getFittsId() {
+    if (current_trial == 0) return 0;
+    distance = dist(mouseX, lastPosition.x, mouseY, lastPosition.y);
+    lastPosition.x = mouseX;
+    lastPosition.y = mouseY;
 
     return Math.log2(distance/TARGET_SIZE + 1);
 }
@@ -469,24 +356,20 @@ function get_fitts_id() {
 function mousePressed() {
     // Only look for mouse releases during the actual test
     // (i.e., during target selections)
-    updateCursor();
 
 
     if (draw_targets) {
         // Get the location and size of the target the user should be trying to select
         let target = getTargetBounds(trials[current_trial]);
 
-        // Check to see if the virtual cursor is inside the target bounds,
+        // Check to see if the snap virtual cursor is inside the target bounds,
         // increasing either the 'hits' or 'misses' counters
 
         if (insideInputArea(mouseX, mouseY)) {
-            let virtual_x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width);
-            let virtual_y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height);
-
-            if (dist(target.x,target.y, dummy_target.x, dummy_target.y) < target.w / 2) {
+            if (dist(target.x,target.y, snapCursor.x, snapCursor.y) < target.w / 2) {
                 hits++;
                 sound.success.play();
-                fitts_IDs.push(get_fitts_id());
+                fitts_IDs.push(getFittsId());
             }
             else {
                 misses++;
@@ -499,8 +382,6 @@ function mousePressed() {
 
         // Check if the user has completed all 54 trials
         if (current_trial === trials.length) {
-
-            console.log(fitts_IDs);
 
             noStroke();
 
@@ -525,71 +406,35 @@ function drawTarget(i) {
     // Get the location and size for target (i)
     let target = getTargetBounds(i);
 
-    // Check whether this target is the target the user should be trying to select
-    if (trials[current_trial] === i) {
-        // Highlights the target the user should be trying to select
-        // with a white border
-        stroke(color(220, 220, 220));
-        strokeWeight(2);
-
-        // Remember you are allowed to access targets (i-1) and (i+1)
-        // if this is the target the user should be trying to select
-        //
-    }
-    // Does not draw a border if this is not the target the user
-    // should be trying to select
-    else noStroke();
-
-    // Draws the target
+    // Marks current target
     if (i == trials[current_trial]) {
-        if (version != VERSIONS.V1) {
-            if (trials[current_trial] == trials[current_trial + 1]) {
-                stroke(color(255,255,255));
-                strokeWeight(4);
-            }
+        if (trials[current_trial] == trials[current_trial + 1]) {
+            stroke(color(255,255,255));
+            strokeWeight(4);
         }
-
-
-        if (version == VERSIONS.V9 || version == VERSIONS.TEST_1_3 || version == VERSIONS.TEST_1_4) {
-            let virtual_x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width)
-            let virtual_y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height)
-            let target = getTargetBounds(trials[current_trial]);
-
-            if (dist(target.x, target.y, virtual_x, virtual_y) < target.w * NEARBY_DISTANCE) {
-                fill(color(34, 255, 0));
-            }
-            else {
-                fill(color(255,0,94));
-            }
-        }
-        else {
-            fill(color(255,0,94));
-        }
-
+        
+        fill(COLORS.TARGET_MAIN);
     }
+    // Marks next target
     else if (i == trials[current_trial + 1]){
-        // Special case: current == next 
         stroke(color(255,255,255));
-        fill(color(0, 47, 255));
+        fill(COLORS.NEXT_MAIN);
     }
     else {
-        fill(color(0,187,255));
+        fill(COLORS.DEFAULT_MAIN);
     }
 
     circle(target.x, target.y, target.w);
     strokeWeight(1);
 
-    if (i == trials[current_trial]) {
-        if (version != VERSIONS.V1) {
-            if (trials[current_trial] == trials[current_trial + 1]) {
-                textSize(20);
-                fill(color(0,0,0));
-                noStroke();
-                textStyle(BOLD);
-                text("2x", target.x - TARGET_SIZE / 5, target.y + TARGET_SIZE / 7);
-                textStyle(NORMAL);
-            }
-        }
+    // Mark duplicate target (current equals the next target)
+    if (i == trials[current_trial] && i == trials[current_trial + 1]) {
+        textSize(20);
+        fill(color(0,0,0));
+        noStroke();
+        textStyle(BOLD);
+        text("2x", target.x - TARGET_SIZE / 5, target.y + TARGET_SIZE / 7);
+        textStyle(NORMAL);
     }
 
 }
@@ -657,21 +502,20 @@ function drawInputArea() {
     noFill();
     stroke(color(220, 220, 220));
     strokeWeight(2);
-
     rect(inputArea.x, inputArea.y, inputArea.w, inputArea.h);
 }
 
 function drawMiniature() {
 
+    // Original dimensions and positions
     const CURSOR_RADIUS = PPCM / 2;
     const CELL_SIDE = (TARGET_PADDING + TARGET_SIZE);
     const MARGIN_TOP = TOP_PADDING + MARGIN - TARGET_SIZE / 2 - CELL_SIDE/4 + CURSOR_RADIUS / 2;
-    const BOX_HEIGHT = MARGIN + 5 * (TARGET_SIZE + TARGET_PADDING) + CELL_SIDE /2 - CURSOR_RADIUS;
     const MARGIN_LEFT = LEFT_PADDING + MARGIN - TARGET_SIZE / 2 - CELL_SIDE/4 + CURSOR_RADIUS / 2;
-    const BOX_WIDTH = MARGIN + 2 * (TARGET_SIZE + TARGET_PADDING) + CELL_SIDE/2 - CURSOR_RADIUS;
     const COL_COUNT = 3;
     const ROW_COUNT = 6;
 
+    // Get new dimensions and positions
     x1 = map(MARGIN_LEFT, 0, width, inputArea.x, inputArea.x + inputArea.w);
     y1 = map(MARGIN_TOP, 0, height, inputArea.y, inputArea.y + inputArea.h);
     cell_side = map(CELL_SIDE, 0, width, inputArea.x, inputArea.x + inputArea.w) - inputArea.x;
@@ -683,6 +527,7 @@ function drawMiniature() {
     stroke(255,255,255);
     strokeWeight(2);
 
+    // Draw miniature skeleton
     for (let i = 0; i < COL_COUNT + 1; i++) {
         line(x1 + cell_side * i, y1, x1 + cell_side * i, y2);
     }
@@ -691,61 +536,38 @@ function drawMiniature() {
         line(x1, y1 + cell_side * i, x2, y1 + cell_side * i);
     }
     
-    // Draw selected target
-
-    fill(255, 0, 0);
+    // Paint selected target
+    fill(COLORS.TARGET_MINIATURE);
     xSelected = x1 + cell_side * (trials[current_trial] % 3);
     ySelected = y1 + cell_side * Math.floor(trials[current_trial] / 3);
     rect(xSelected, ySelected, cell_side, cell_side);
 
     xNext = x1 + cell_side * (trials[current_trial + 1] % 3);
     yNext = y1 + cell_side * Math.floor(trials[current_trial + 1] / 3);
+
     if (trials[current_trial] == trials[current_trial+1]) {
         strokeWeight(5); 
         stroke(255,255,255);
         rect(xSelected, ySelected, cell_side, cell_side);
         strokeWeight(2);
     }
-    // Draw next target
+
+    // Paint next target
     else {
-        fill(255,255,255);
+        fill(COLORS.NEXT_MINIATURE);
         rect(xNext, yNext, cell_side, cell_side);
     }
 
-    // Draw hover
-    xHover = x1 + cell_side * (dummy_target.i % 3);
-    yHover = y1 + cell_side * Math.floor(dummy_target.i / 3);
-
-    if (dummy_target.i == trials[current_trial]) fill(55, 255, 0); else fill(82, 82, 82);
+    // Paint hover
+    xHover = x1 + cell_side * (snapCursor.i % 3);
+    yHover = y1 + cell_side * Math.floor(snapCursor.i / 3);
+    if (snapCursor.i == trials[current_trial]) fill(COLORS.HOVER_TARGET_MINIATURE); else fill(COLORS.HOVER_DEFAULT_MINIATURE);
     rect(xHover, yHover, cell_side, cell_side);
 
+    // Paint duplicate
     if (trials[current_trial] == trials[current_trial+1]) {
         noStroke();
         fill(0,0,0);
         text("2x", xSelected + cell_side / 4, ySelected + cell_side * 7 / 10);
     }
-
-    // Path lines
-    // xPrev = x1 + cell_side * (trials[current_trial - 1] % 3);
-    // yPrev = y1 + cell_side * Math.floor(trials[current_trial - 1] / 3);
-
-    // centerPrevious = {
-    //     x: xPrev + cell_side / 2,
-    //     y: yPrev + cell_side / 2
-    // };
-
-    // centerCurrent = {
-    //     x: xSelected + cell_side / 2,
-    //     y: ySelected + cell_side / 2
-    // };
-
-    // centerNext = {
-    //     x: xNext + cell_side / 2,
-    //     y: yNext + cell_side / 2
-    // };
-
-    // stroke(225, 0, 255);
-    // line(centerPrevious.x, centerPrevious.y, centerCurrent.x, centerCurrent.y);
-    // stroke(59, 59, 59);
-    // line(centerCurrent.x, centerCurrent.y, centerNext.x, centerNext.y);
 }

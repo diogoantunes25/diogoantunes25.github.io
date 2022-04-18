@@ -106,7 +106,7 @@ function selectVersion() {
         version = Math.floor(Math.random() * VERSIONS.count);
     } while (!VERSIONS_TO_TEST.includes(version)); 
 
-    version = VERSIONS.V10;
+    // version = VERSIONS.V10;
 
     // Create div to store the version
     let div = document.createElement("div");
@@ -480,18 +480,32 @@ function mousePressed() {
         // increasing either the 'hits' or 'misses' counters
 
         if (insideInputArea(mouseX, mouseY)) {
-            let virtual_x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width);
-            let virtual_y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height);
-
-            if (dist(target.x,target.y, dummy_target.x, dummy_target.y) < target.w / 2) {
-                hits++;
-                sound.success.play();
-                fitts_IDs.push(get_fitts_id());
+            if (version == VERSIONS.V10) {
+                if (dist(target.x,target.y, dummy_target.x, dummy_target.y) < target.w / 2) {
+                    hits++;
+                    sound.success.play();
+                    fitts_IDs.push(get_fitts_id());
+                }
+                else {
+                    misses++;
+                    sound.error.play();
+                    fitts_IDs.push(-1);
+                }
             }
             else {
-                misses++;
-                sound.error.play();
-                fitts_IDs.push(-1);
+                let virtual_x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width);
+                let virtual_y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height);
+
+                if (dist(target.x,target.y, virtual_x, virtual_y) < target.w / 2) {
+                    hits++;
+                    sound.success.play();
+                    fitts_IDs.push(get_fitts_id());
+                }
+                else {
+                    misses++;
+                    sound.error.play();
+                    fitts_IDs.push(-1);
+                }
             }
 
             current_trial++;                 // Move on to the next trial/target

@@ -6,7 +6,7 @@
 // p5.js reference: https://p5js.org/reference/
 
 // Database (CHANGE THESE!)
-const GROUP_NUMBER = 0;      // Add your group number here as an integer (e.g., 2, 3)
+const GROUP_NUMBER = "5-AL";      // Add your group number here as an integer (e.g., 2, 3)
 const BAKE_OFF_DAY = false;  // Set to 'true' before sharing during the bake-off day
 
 // Target and grid properties (DO NOT CHANGE!)
@@ -314,19 +314,19 @@ function printAndSavePerformance() {
     }
 
     // Saves results (DO NOT CHANGE!)
-    let attempt_data =
+    let attempt_data = 
     {
-        project_from: GROUP_NUMBER,
-        assessed_by: student_ID,
-        test_completed_by: timestamp,
-        attempt: attempt,
-        hits: hits,
-        misses: misses,
-        accuracy: accuracy,
-        attempt_duration: test_time,
-        time_per_target: time_per_target,
-        target_w_penalty: target_w_penalty,
-        fitts_IDs: fitts_IDs
+        project_from:       GROUP_NUMBER,
+        assessed_by:        student_ID,
+        test_completed_by:  timestamp,
+        attempt:            attempt,
+        hits:               hits,
+        misses:             misses,
+        accuracy:           accuracy,
+        attempt_duration:   test_time,
+        time_per_target:    time_per_target,
+        target_w_penalty:   target_w_penalty,
+        fitts_IDs:          fitts_IDs
     }
 
     // Send data to DB (DO NOT CHANGE!)
